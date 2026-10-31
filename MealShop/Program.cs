@@ -11,6 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Cau hinh MenuOptions tu appsettings.json
+builder.Services.Configure<MenuOptions>(builder.Configuration.GetSection("Menu"));
+
 // Cau hinh ASP.NET Core Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {

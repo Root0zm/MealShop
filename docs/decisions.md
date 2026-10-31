@@ -13,3 +13,6 @@ This Project will use the decision below
 7. Dinh duong cua mon co thanh phan la mon khac lay tu dataset (tham chieu), khong tinh de quy -> cong thuc vong tron khong gay loi tinh toan.
 8. Mon do Admin tao moi co Id = max(Id hien co, 99_999_999) + 1, de khong dung ma goc cua dataset.
 9. Khong xoa cung mon da tung duoc dat; an bang IsSellable = false.
+10. KHONG them cot MenuGroup vao database. Gia va nhom thuc don tam suy ra tu Food.CategoryVi bang mot bang quy tac nam trong cau hinh (appsettings.json, doc bang IOptions<MenuOptions>). Day la giai phap TAM (tranh sua schema/du lieu nhieu); sau nay se thay bang cot MenuGroup.
+11. Nguyen lieu nhu thit, ca, rau, dau duoc ban lam mon kem. Giao dien ghi chu ro: "Dinh duong tinh theo khoi luong nguyen lieu, chua tinh hao hut khi che bien."
+12. Dinh duong cua mot khau phan = gia tri tren 100g (tham chieu trong dataset) x gram khau phan / 100. Neu thieu so lieu thi hien "chua du du lieu", khong doan, khong tu dong dien 0.

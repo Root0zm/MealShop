@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>MealShop – Thực đơn</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#2F7D4F}a:hover{color:#1F5F3A}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="background: #F4F7F2; color: #16231B; font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-size: 16px; line-height: 1.5; min-height: 1500px">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #DDE5DF">
+<div style="max-width: 1280px; margin: 0 auto; padding: 14px 24px; box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #1F5F3A; font-weight: 700; font-size: 22px">
+<svg width="30" height="30" viewBox="0 0 32 32" fill="none" stroke="#2F7D4F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 27C5 14 13 6 27 5c0 14-8 22-20 22z"></path><path d="M5 27c5-8 10-12 16-15"></path></svg>
+MealShop
+</a>
+<form style="flex: 1 1 260px; display: flex; gap: 8px" onsubmit="return false">
+<label for="q" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Tìm món</label>
+<input id="q" type="search" placeholder="Tìm món, ví dụ: bun cha, pho" style="flex: 1; min-width: 0; height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #8FA095; border-radius: 12px; font: inherit; font-size: 15px; color: #16231B; background: #FFFFFF">
+</form>
+<nav style="display: flex; align-items: center; gap: 24px; font-size: 15px; font-weight: 500">
+<a href="Main.dc.html" style="color: #1F5F3A; text-decoration: none; border-bottom: 2px solid #2F7D4F; padding: 8px 0">Thực đơn</a>
+<a href="Main.dc.html" style="color: #16231B; text-decoration: none; padding: 8px 0">Đơn của tôi</a>
+<a href="Cart.dc.html" style="display: flex; align-items: center; gap: 8px; height: 44px; box-sizing: border-box; padding: 0 16px; border-radius: 12px; background: #2F7D4F; color: #FFFFFF; text-decoration: none; font-weight: 600">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2.5l2 11h10l2-8H7"></path><circle cx="9" cy="19.5" r="1.4"></circle><circle cx="17" cy="19.5" r="1.4"></circle></svg>
+Giỏ hàng
+<span style="background: #FFFFFF; color: #1F5F3A; border-radius: 999px; min-width: 22px; padding: 0 6px; text-align: center; font-size: 13px; font-weight: 700">3</span>
+</a>
+</nav>
+</div>
+</header>
+
+<main style="max-width: 1280px; margin: 0 auto; padding: 32px 24px 48px; box-sizing: border-box">
+
+<div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 24px">
+<h1 style="margin: 0; font-size: 34px; line-height: 1.2; font-weight: 700">Thực đơn hôm nay</h1>
+<p style="margin: 0; font-size: 16px; color: #3F5046; max-width: 640px">Chọn một món chính, thêm món kèm. Năng lượng, đạm, béo và bột đường hiện ngay trên từng suất.</p>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 16px">
+<span style="font-size: 14px; font-weight: 600; color: #3F5046; margin-right: 4px">Chọn theo mục tiêu</span>
+<sc-for list="{{goals}}" as="g" hint-placeholder-count="4">
+<button type="button" style="height: 44px; box-sizing: border-box; padding: 0 16px; border-radius: 999px; border: 1px solid #8FA095; background: #FFFFFF; color: #16231B; font-size: 14px; font-weight: 500; cursor: pointer">{{g.label}}</button>
+</sc-for>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px; padding-bottom: 20px; border-bottom: 1px solid #DDE5DF; margin-bottom: 28px">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="5">
+<button type="button" style="height: 44px; box-sizing: border-box; padding: 0 18px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; border: 1px solid {{t.border}}; background: {{t.bg}}; color: {{t.fg}}">{{t.label}}</button>
+</sc-for>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+
+<section style="flex: 999 1 560px; min-width: 0">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 16px">
+<h2 style="margin: 0; font-size: 22px; font-weight: 700">Món chính</h2>
+<span style="font-size: 14px; color: #3F5046">35.000 ₫ mỗi suất · năng lượng tính theo cả suất</span>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px">
+<sc-for list="{{dishes}}" as="d" hint-placeholder-count="3">
+<article style="flex: 1 1 240px; min-width: 0; background: #FFFFFF; border: 1px solid #DDE5DF; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column">
+<div style="position: relative; height: 132px; display: flex; align-items: center; justify-content: center; background: {{d.tint}}">
+<svg width="76" height="76" viewBox="0 0 64 64" fill="none" stroke="{{d.ink}}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 28h48c0 13-10.7 24-24 24S8 41 8 28z"></path><path d="M22 57h20"></path><path d="M24 11c-3 3 3 5 0 9M32 9c-3 3 3 5 0 9M40 11c-3 3 3 5 0 9"></path></svg>
+<sc-if value="{{d.hasTag}}" hint-placeholder-val="{{ false }}">
+<span style="position: absolute; top: 12px; left: 12px; background: #FFFFFF; color: #1F5F3A; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 600">{{d.tag}}</span>
+</sc-if>
+</div>
+<div style="padding: 16px; display: flex; flex-direction: column; gap: 12px; flex: 1">
+<div>
+<h3 style="margin: 0; font-size: 18px; font-weight: 600; line-height: 1.3">{{d.name}}</h3>
+<p style="margin: 2px 0 0; font-size: 13px; color: #3F5046">{{d.desc}}</p>
+</div>
+<div style="display: flex; align-items: baseline; gap: 8px">
+<span style="font-size: 30px; font-weight: 700; line-height: 1">{{d.kcal}}</span>
+<span style="font-size: 13px; color: #3F5046">kcal · {{d.portion}}</span>
+</div>
+<div role="img" aria-label="Tỉ lệ năng lượng: đạm {{d.sp}}%, béo {{d.sf}}%, bột đường {{d.sc}}%" style="display: flex; height: 8px; border-radius: 999px; overflow: hidden; background: #E7EDE9">
+<div style="width: {{d.sp}}%; background: #1F5F3A"></div>
+<div style="width: {{d.sf}}%; background: #E0A526"></div>
+<div style="width: {{d.sc}}%; background: #5B8DB8"></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: #16231B">
+<span style="display: flex; align-items: center; gap: 5px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #1F5F3A"></span>Đạm {{d.p}} g</span>
+<span style="display: flex; align-items: center; gap: 5px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #E0A526"></span>Béo {{d.f}} g</span>
+<span style="display: flex; align-items: center; gap: 5px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #5B8DB8"></span>Bột đường {{d.c}} g</span>
+</div>
+<div style="margin-top: auto; padding-top: 4px; display: flex; align-items: center; justify-content: space-between; gap: 12px">
+<span style="font-size: 18px; font-weight: 700; color: #B4390F">35.000 ₫</span>
+<button type="button" style="display: flex; align-items: center; gap: 6px; height: 44px; box-sizing: border-box; padding: 0 18px; border: 0; border-radius: 12px; background: #2F7D4F; color: #FFFFFF; font-size: 15px; font-weight: 600; cursor: pointer">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+Thêm
+</button>
+</div>
+</div>
+</article>
+</sc-for>
+</div>
+
+<div style="margin-top: 40px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 16px">
+<h2 style="margin: 0; font-size: 22px; font-weight: 700">Thêm món kèm</h2>
+<span style="font-size: 14px; color: #3F5046">5.000 ₫ mỗi phần nhỏ</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<sc-for list="{{sides}}" as="s" hint-placeholder-count="4">
+<div style="flex: 1 1 200px; min-width: 0; background: #FFFFFF; border: 1px solid #DDE5DF; border-radius: 14px; padding: 12px 12px 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px">
+<div style="min-width: 0">
+<div style="font-size: 15px; font-weight: 600">{{s.name}}</div>
+<div style="font-size: 13px; color: #3F5046">{{s.meta}}</div>
+</div>
+<button type="button" aria-label="Thêm {{s.name}}" style="flex: none; width: 44px; height: 44px; border-radius: 12px; border: 1px solid #2F7D4F; background: #FFFFFF; cursor: pointer; display: flex; align-items: center; justify-content: center">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2F7D4F" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+</button>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<aside style="flex: 1 1 320px; max-width: 380px; min-width: 0; background: #FFFFFF; border: 1px solid #DDE5DF; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: baseline; justify-content: space-between">
+<h2 style="margin: 0; font-size: 20px; font-weight: 700">Bữa của bạn</h2>
+<span style="font-size: 14px; color: #3F5046">3 món</span>
+</div>
+
+<div style="display: flex; flex-direction: column">
+<sc-for list="{{cart}}" as="c" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid #E7EDE9">
+<div style="min-width: 0">
+<div style="font-size: 15px; font-weight: 600">{{c.name}}</div>
+<div style="font-size: 13px; color: #3F5046">{{c.meta}}</div>
+</div>
+<div style="text-align: right; flex: none">
+<div style="font-size: 15px; font-weight: 600">{{c.price}} ₫</div>
+<div style="font-size: 13px; color: #3F5046">{{c.kcal}} kcal</div>
+</div>
+</div>
+</sc-for>
+</div>
+
+<div style="background: #F4F7F2; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: baseline; justify-content: space-between">
+<span style="font-size: 14px; font-weight: 600">Năng lượng cả bữa</span>
+<span style="font-size: 22px; font-weight: 700">589 kcal</span>
+</div>
+<div role="img" aria-label="Đạm 19%, béo 30%, bột đường 51% năng lượng" style="display: flex; height: 8px; border-radius: 999px; overflow: hidden; background: #E7EDE9">
+<div style="width: 19%; background: #1F5F3A"></div>
+<div style="width: 30%; background: #E0A526"></div>
+<div style="width: 51%; background: #5B8DB8"></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px">
+<span style="display: flex; align-items: center; gap: 5px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #1F5F3A"></span>Đạm 28 g</span>
+<span style="display: flex; align-items: center; gap: 5px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #E0A526"></span>Béo 20 g</span>
+<span style="display: flex; align-items: center; gap: 5px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #5B8DB8"></span>Bột đường 75 g</span>
+</div>
+<div style="font-size: 13px; color: #3F5046">Chiếm khoảng 29% mức 2.000 kcal mỗi ngày</div>
+</div>
+
+<div style="display: flex; align-items: baseline; justify-content: space-between; border-top: 1px solid #E7EDE9; padding-top: 14px">
+<span style="font-size: 15px; font-weight: 500">Tạm tính</span>
+<span style="font-size: 22px; font-weight: 700; color: #B4390F">55.000 ₫</span>
+</div>
+<a href="Cart.dc.html" style="display: flex; align-items: center; justify-content: center; height: 48px; border-radius: 12px; background: #2F7D4F; color: #FFFFFF; font-size: 16px; font-weight: 600; text-decoration: none">Xem giỏ và đặt hàng</a>
+</aside>
+
+</div>
+
+<p style="margin: 40px 0 0; font-size: 13px; color: #3F5046; max-width: 720px">Giá trị dinh dưỡng lấy từ bảng thành phần thực phẩm (tính trên 100 g) nhân với khối lượng suất. Khối lượng suất và giá trong bản mẫu này là số giả định để minh họa.</p>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const goals = [
+      { label: 'Dưới 400 kcal' },
+      { label: 'Giàu đạm' },
+      { label: 'Ít béo' },
+      { label: 'Nhiều rau' }
+    ];
+    const tabNames = ['Món chính', 'Đồ uống', 'Bánh ngọt', 'Thịt và chế biến', 'Rau củ', 'Trứng', 'Đậu và hạt'];
+    const tabs = tabNames.map((label, i) => ({
+      label,
+      bg: i === 0 ? '#2F7D4F' : '#FFFFFF',
+      fg: i === 0 ? '#FFFFFF' : '#16231B',
+      border: i === 0 ? '#2F7D4F' : '#8FA095'
+    }));
+    const green = { tint: '#E4F0E6', ink: '#2F7D4F' };
+    const amber = { tint: '#FBEBD3', ink: '#A8660B' };
+    const blue = { tint: '#E1ECF5', ink: '#2F6690' };
+    const rose = { tint: '#F3E3E1', ink: '#A24A3F' };
+    const dishes = [
+      { name: 'Bún chả', desc: 'Bún, thịt nướng, rau sống, nước chấm', portion: '1 suất 350 g', kcal: 476, p: 21, f: 15, c: 63, sp: 18, sf: 29, sc: 53, hasTag: false, tag: '', ...green },
+      { name: 'Phở bò chín', desc: 'Bánh phở, thịt bò, nước dùng', portion: '1 suất 450 g', kcal: 329, p: 23, f: 4, c: 50, sp: 28, sf: 11, sc: 61, hasTag: true, tag: 'Ít béo', ...blue },
+      { name: 'Cơm rang', desc: 'Cơm, trứng, hành lá', portion: '1 suất 300 g', kcal: 594, p: 18, f: 29, c: 66, sp: 12, sf: 44, sc: 44, hasTag: false, tag: '', ...amber },
+      { name: 'Xôi đỗ xanh', desc: 'Gạo nếp, đỗ xanh', portion: '1 suất 250 g', kcal: 575, p: 14, f: 1, c: 128, sp: 10, sf: 2, sc: 88, hasTag: true, tag: 'Ít béo', ...rose },
+      { name: 'Bún nem', desc: 'Bún, nem rán, rau thơm, nước chấm', portion: '1 suất 350 g', kcal: 420, p: 12, f: 14, c: 62, sp: 11, sf: 29, sc: 60, hasTag: false, tag: '', ...green },
+      { name: 'Xôi lạc', desc: 'Gạo nếp, lạc', portion: '1 suất 250 g', kcal: 615, p: 11, f: 11, c: 119, sp: 7, sf: 16, sc: 77, hasTag: false, tag: '', ...amber }
+    ];
+    const sides = [
+      { name: 'Trứng gà', meta: '40 g · 60 kcal' },
+      { name: 'Đậu phụ luộc', meta: '40 g · 39 kcal' },
+      { name: 'Thịt lợn nạc luộc', meta: '40 g · 48 kcal' },
+      { name: 'Rau muống luộc', meta: '50 g · 14 kcal' }
+    ];
+    const cart = [
+      { name: 'Bún chả', meta: '1 suất · 350 g', price: '35.000', kcal: 476 },
+      { name: 'Trứng gà', meta: '40 g', price: '5.000', kcal: 60 },
+      { name: 'Nước dừa non', meta: '250 ml', price: '15.000', kcal: 53 }
+    ];
+    return { goals, tabs, dishes, sides, cart };
+  }
+}
+</script>
+</body>
+</html>
