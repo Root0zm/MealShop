@@ -67,6 +67,12 @@ if (app.Environment.IsDevelopment() || args.Contains("--seed-only"))
     await FoodSeeder.SeedAsync(context);
     await FoodSeeder.SeedRecipesAsync(context);
     await IdentitySeeder.SeedAsync(scope.ServiceProvider);
+
+    if (args.Contains("--apply-defaults") || args.Contains("--seed-only"))
+    {
+        var defaultPortionService = scope.ServiceProvider.GetRequiredService<DefaultPortionService>();
+        await defaultPortionService.ApplyAsync();
+    }
 }
 
 // Ho tro chay lenh seed rieng biet ma khong khoi dong web server
