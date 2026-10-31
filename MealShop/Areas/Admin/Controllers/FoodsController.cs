@@ -15,15 +15,21 @@ public class FoodsController : Controller
     private readonly AppDbContext _context;
     private readonly FoodQueryService _queryService;
     private readonly AdminFoodService _adminFoodService;
+    private readonly AdminRecipeService _adminRecipeService;
+    private readonly NutritionCalculatorService _nutritionCalculator;
 
     public FoodsController(
         AppDbContext context,
         FoodQueryService queryService,
-        AdminFoodService adminFoodService)
+        AdminFoodService adminFoodService,
+        AdminRecipeService adminRecipeService,
+        NutritionCalculatorService nutritionCalculator)
     {
         _context = context;
         _queryService = queryService;
         _adminFoodService = adminFoodService;
+        _adminRecipeService = adminRecipeService;
+        _nutritionCalculator = nutritionCalculator;
     }
 
     // Danh sach quan tri thuc pham / mon an
@@ -143,6 +149,13 @@ public class FoodsController : Controller
         };
 
         ViewBag.Food = food;
+
+        if (food.Kind == "dish")
+        {
+            ViewBag.CalculatedNutrition = _nutritionCalculator.CalculateDishNutrition(food, food.Recipes.ToList());
+            ViewBag.UsableComponents = await _adminRecipeService.GetUsableComponentsAsync(food.Id);
+        }
+
         return View(model);
     }
 
@@ -167,12 +180,119 @@ public class FoodsController : Controller
                     .ThenInclude(r => r.Component)
                 .FirstOrDefaultAsync(f => f.Id == id);
             ViewBag.Food = food;
+            if (food != null && food.Kind == "dish")
+            {
+                ViewBag.CalculatedNutrition = _nutritionCalculator.CalculateDishNutrition(food, food.Recipes.ToList());
+                ViewBag.UsableComponents = await _adminRecipeService.GetUsableComponentsAsync(food.Id);
+            }
             return View(model);
         }
 
         await _adminFoodService.UpdateFoodAsync(id, model);
         TempData["SuccessMessage"] = $"Cap nhat thanh cong: {model.NameVi}.";
         return RedirectToAction(nameof(Edit), new { id });
+    }
+
+    // Them thanh phan vao cong thuc
+    [HttpPost]
+    public async Task<IActionResult> AddComponent(int dishId, int componentId, decimal grams)
+    {
+        var (succeeded, message) = await _adminRecipeService.AddComponentAsync(dishId, componentId, grams);
+        if (succeeded)
+        {
+            TempData["SuccessMessage"] = message;
+        }
+        else
+        {
+            TempData["ErrorMessage"] = message;
+        }
+
+        return RedirectToAction(nameof(Edit), new { id = dishId });
+    }
+
+    // Cap nhat khoi luong thanh phan
+    [HttpPost]
+    public async Task<IActionResult> UpdateComponent(int dishId, int componentId, decimal grams)
+    {
+        var (succeeded, message) = await _adminRecipeService.UpdateComponentGramsAsync(dishId, componentId, grams);
+        if (succeeded)
+        {
+            TempData["SuccessMessage"] = message;
+        }
+        else
+        {
+            TempData["ErrorMessage"] = message;
+        }
+
+        return RedirectToAction(nameof(Edit), new { id = dishId });
+    }
+
+    // Xoa thanh phan khoi cong thuc
+    [HttpPost]
+    public async Task<IActionResult> RemoveComponent(int dishId, int componentId)
+    {
+        var (succeeded, message) = await _adminRecipeService.RemoveComponentAsync(dishId, componentId);
+        if (succeeded)
+        {
+            TempData["SuccessMessage"] = message;
+        }
+        else
+        {
+            TempData["ErrorMessage"] = message;
+        }
+
+        return RedirectToAction(nameof(Edit), new { id = dishId });
+    }
+
+    // Them khau phan moi
+    [HttpPost]
+    public async Task<IActionResult> AddPortion(int foodId, string name, decimal grams, decimal price, bool isActive = true)
+    {
+        var (succeeded, message) = await _adminRecipeService.AddPortionAsync(foodId, name, grams, price, isActive);
+        if (succeeded)
+        {
+            TempData["SuccessMessage"] = message;
+        }
+        else
+        {
+            TempData["ErrorMessage"] = message;
+        }
+
+        return RedirectToAction(nameof(Edit), new { id = foodId });
+    }
+
+    // Cap nhat khau phan
+    [HttpPost]
+    public async Task<IActionResult> UpdatePortion(int portionId, int foodId, string name, decimal grams, decimal price, bool isActive)
+    {
+        var (succeeded, message) = await _adminRecipeService.UpdatePortionAsync(portionId, name, grams, price, isActive);
+        if (succeeded)
+        {
+            TempData["SuccessMessage"] = message;
+        }
+        else
+        {
+            TempData["ErrorMessage"] = message;
+        }
+
+        return RedirectToAction(nameof(Edit), new { id = foodId });
+    }
+
+    // Xoa khau phan
+    [HttpPost]
+    public async Task<IActionResult> DeletePortion(int portionId, int foodId)
+    {
+        var (succeeded, message) = await _adminRecipeService.DeletePortionAsync(portionId);
+        if (succeeded)
+        {
+            TempData["SuccessMessage"] = message;
+        }
+        else
+        {
+            TempData["ErrorMessage"] = message;
+        }
+
+        return RedirectToAction(nameof(Edit), new { id = foodId });
     }
 
     // Xac nhan xoa

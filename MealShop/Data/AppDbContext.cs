@@ -123,11 +123,14 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.ToTable("Portions", t =>
             {
                 t.HasCheckConstraint("CK_Portion_Grams_Positive", "Grams > 0");
+                t.HasCheckConstraint("CK_Portion_Price_NonNegative", "Price >= 0");
             });
 
             entity.HasKey(p => p.Id);
             entity.Property(p => p.Name).HasMaxLength(100).IsRequired();
             entity.Property(p => p.Grams).HasPrecision(10, 2).IsRequired();
+            entity.Property(p => p.Price).HasPrecision(12, 0).HasDefaultValue(0m);
+            entity.Property(p => p.IsActive).HasDefaultValue(true);
 
             // Khau phan trong cung mot mon khong duoc trung ten
             entity.HasIndex(p => new { p.FoodId, p.Name }).IsUnique();
@@ -208,6 +211,22 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
                     throw new InvalidOperationException("Thanh phan phai co UsableAsComponent = true.");
                 }
                 recipe.ComponentUsableAsComponent = recipe.Component.UsableAsComponent;
+            }
+        }
+
+        var portionEntries = ChangeTracker.Entries<Portion>()
+            .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
+
+        foreach (var entry in portionEntries)
+        {
+            var portion = entry.Entity;
+            if (portion.Grams <= 0)
+            {
+                throw new ArgumentException("Khoi luong khau phan phai lon hon 0 gram.");
+            }
+            if (portion.Price < 0)
+            {
+                throw new ArgumentException("Gia ban khau phan khong duoc am.");
             }
         }
     }

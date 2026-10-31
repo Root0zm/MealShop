@@ -2,6 +2,9 @@
 @{
     ViewData["Title"] = $"Chỉnh sửa: {Model.NameVi}";
     var food = ViewBag.Food as MealShop.Models.Food;
+    var calcNutrition = ViewBag.CalculatedNutrition as MealShop.ViewModels.CalculatedNutritionViewModel;
+    var usableComponents = ViewBag.UsableComponents as List<MealShop.Models.Food> ?? new List<MealShop.Models.Food>();
+    var totalGrams = food?.Recipes.Sum(r => r.Grams) ?? 0m;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -31,9 +34,10 @@
     </div>
 }
 
+<!-- Thong tin co ban & Dinh duong -->
 <div class="card shadow-sm mb-4">
     <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">Thông tin cơ bản</h5>
+        <h5 class="mb-0">Thông tin cơ bản & Giá trị dinh dưỡng (trên 100g)</h5>
     </div>
     <div class="card-body p-4">
         <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
@@ -45,7 +49,7 @@
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
             <div class="row g-3 mb-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label asp-for="Kind" class="form-label fw-semibold"></label>
                     <select asp-for="Kind" class="form-select" id="foodKindSelect">
                         <option value="dish">Món ăn (dish)</option>
@@ -53,10 +57,15 @@
                     </select>
                     <span asp-validation-for="Kind" class="text-danger small"></span>
                 </div>
-                <div class="col-md-8">
+                <div class="col-md-5">
                     <label asp-for="NameVi" class="form-label fw-semibold"></label>
                     <input asp-for="NameVi" class="form-control" />
                     <span asp-validation-for="NameVi" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="CategoryVi" class="form-label fw-semibold"></label>
+                    <input asp-for="CategoryVi" class="form-control" />
+                    <span asp-validation-for="CategoryVi" class="text-danger small"></span>
                 </div>
             </div>
 
@@ -66,37 +75,25 @@
                     <input asp-for="NameEn" class="form-control" />
                     <span asp-validation-for="NameEn" class="text-danger small"></span>
                 </div>
-                <div class="col-md-6">
-                    <label asp-for="CategoryVi" class="form-label fw-semibold"></label>
-                    <input asp-for="CategoryVi" class="form-control" />
-                    <span asp-validation-for="CategoryVi" class="text-danger small"></span>
-                </div>
-            </div>
-
-            <div class="row g-3 mb-4">
-                <div class="col-md-6">
-                    <div class="form-check mt-2">
+                <div class="col-md-3">
+                    <div class="form-check mt-4">
                         <input asp-for="UsableAsComponent" class="form-check-input" id="usableAsComponentCheck" />
                         <label asp-for="UsableAsComponent" class="form-check-label fw-semibold">
-                            Dùng làm thành phần cho món khác
+                            Dùng làm thành phần
                         </label>
-                        <div class="form-text text-muted">Nguyên liệu (ingredient) luôn bắt buộc bật trường này.</div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="form-check mt-2">
+                <div class="col-md-3">
+                    <div class="form-check mt-4">
                         <input asp-for="IsSellable" class="form-check-input" />
                         <label asp-for="IsSellable" class="form-check-label fw-semibold">
-                            Có thể bán trên Menu (IsSellable)
+                            Có thể bán trên Menu
                         </label>
-                        <div class="form-text text-muted">Tắt để ẩn món ăn khỏi thực đơn mà không cần xóa.</div>
                     </div>
                 </div>
             </div>
 
-            <h5 class="fw-bold border-bottom pb-2 mb-3 text-primary">Giá trị dinh dưỡng (trên 100g)</h5>
-            <p class="text-muted small">Để trống nếu không có số liệu (sẽ lưu null, không tự điền 0).</p>
-
+            <h6 class="fw-bold border-bottom pb-2 mb-3 text-secondary">Chỉ số đa lượng & vi lượng (trên 100g)</h6>
             <div class="row g-3 mb-3">
                 <div class="col-md-3">
                     <label asp-for="Kcal" class="form-label fw-semibold text-danger"></label>
@@ -124,22 +121,18 @@
                 <div class="col-md-3">
                     <label asp-for="Water" class="form-label"></label>
                     <input asp-for="Water" type="number" step="0.1" class="form-control" />
-                    <span asp-validation-for="Water" class="text-danger small"></span>
                 </div>
                 <div class="col-md-3">
                     <label asp-for="Fiber" class="form-label"></label>
                     <input asp-for="Fiber" type="number" step="0.1" class="form-control" />
-                    <span asp-validation-for="Fiber" class="text-danger small"></span>
                 </div>
                 <div class="col-md-3">
                     <label asp-for="Cholesterol" class="form-label"></label>
                     <input asp-for="Cholesterol" type="number" step="0.1" class="form-control" />
-                    <span asp-validation-for="Cholesterol" class="text-danger small"></span>
                 </div>
                 <div class="col-md-3">
                     <label asp-for="Calcium" class="form-label"></label>
                     <input asp-for="Calcium" type="number" step="0.1" class="form-control" />
-                    <span asp-validation-for="Calcium" class="text-danger small"></span>
                 </div>
             </div>
 
@@ -147,55 +140,282 @@
                 <div class="col-md-3">
                     <label asp-for="Phosphorus" class="form-label"></label>
                     <input asp-for="Phosphorus" type="number" step="0.1" class="form-control" />
-                    <span asp-validation-for="Phosphorus" class="text-danger small"></span>
                 </div>
                 <div class="col-md-3">
                     <label asp-for="Iron" class="form-label"></label>
                     <input asp-for="Iron" type="number" step="0.01" class="form-control" />
-                    <span asp-validation-for="Iron" class="text-danger small"></span>
                 </div>
                 <div class="col-md-3">
                     <label asp-for="Sodium" class="form-label"></label>
                     <input asp-for="Sodium" type="number" step="0.1" class="form-control" />
-                    <span asp-validation-for="Sodium" class="text-danger small"></span>
                 </div>
                 <div class="col-md-3">
                     <label asp-for="Potassium" class="form-label"></label>
                     <input asp-for="Potassium" type="number" step="0.1" class="form-control" />
-                    <span asp-validation-for="Potassium" class="text-danger small"></span>
                 </div>
             </div>
 
-            <div class="row g-3 mb-4">
+            <div class="row g-3 mb-3">
                 <div class="col-md-3">
                     <label asp-for="Zinc" class="form-label"></label>
                     <input asp-for="Zinc" type="number" step="0.01" class="form-control" />
-                    <span asp-validation-for="Zinc" class="text-danger small"></span>
                 </div>
                 <div class="col-md-3">
                     <label asp-for="VitaminA" class="form-label"></label>
                     <input asp-for="VitaminA" type="number" step="0.1" class="form-control" />
-                    <span asp-validation-for="VitaminA" class="text-danger small"></span>
                 </div>
                 <div class="col-md-3">
                     <label asp-for="BetaCarotene" class="form-label"></label>
                     <input asp-for="BetaCarotene" type="number" step="0.1" class="form-control" />
-                    <span asp-validation-for="BetaCarotene" class="text-danger small"></span>
                 </div>
                 <div class="col-md-3">
                     <label asp-for="VitaminC" class="form-label"></label>
                     <input asp-for="VitaminC" type="number" step="0.1" class="form-control" />
-                    <span asp-validation-for="VitaminC" class="text-danger small"></span>
                 </div>
             </div>
 
-            <div class="d-flex justify-content-end gap-2">
-                <a asp-action="Index" class="btn btn-secondary">Hủy bỏ</a>
-                <button type="submit" class="btn btn-primary px-4">Lưu thông tin</button>
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary px-4">Lưu thông tin món</button>
             </div>
         </form>
     </div>
 </div>
+
+@if (Model.Kind == "dish")
+{
+    <!-- Quan ly Cong thuc & Thanh phan -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Công thức & Thành phần nguyên liệu</h5>
+            <span class="badge bg-light text-dark">Tổng khối lượng: @totalGrams.ToString("N1") g</span>
+        </div>
+        <div class="card-body p-4">
+            <!-- Bang thanh phan hien tai -->
+            <div class="table-responsive mb-4">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mã</th>
+                            <th>Thành phần</th>
+                            <th class="text-end" style="width: 140px;">Khối lượng (g)</th>
+                            <th class="text-end" style="width: 90px;">Tỷ lệ</th>
+                            <th class="text-center" style="width: 180px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (food?.Recipes.Count > 0)
+                        {
+                            @foreach (var r in food.Recipes.OrderByDescending(x => x.Grams))
+                            {
+                                var pct = totalGrams > 0 ? (r.Grams / totalGrams) * 100m : 0m;
+                                <tr>
+                                    <td>@r.ComponentId</td>
+                                    <td>
+                                        <span class="fw-semibold">@r.Component?.NameVi</span>
+                                        @if (r.Component?.IsSuspect == true)
+                                        {
+                                            <span class="badge bg-warning text-dark ms-1">⚠️ @r.Component.EnergyFlag</span>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <form asp-action="UpdateComponent" method="post" class="d-flex align-items-center justify-content-end gap-1">
+                                            <input type="hidden" name="dishId" value="@Model.Id" />
+                                            <input type="hidden" name="componentId" value="@r.ComponentId" />
+                                            <input type="number" name="grams" value="@r.Grams" step="0.1" min="0.1" class="form-control form-control-sm text-end" style="width: 80px;" required />
+                                            <button type="submit" class="btn btn-outline-primary btn-sm" title="Lưu khối lượng">💾</button>
+                                        </form>
+                                    </td>
+                                    <td class="text-end text-muted small">@pct.ToString("N1")%</td>
+                                    <td class="text-center">
+                                        <form asp-action="RemoveComponent" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa thành phần này?');">
+                                            <input type="hidden" name="dishId" value="@Model.Id" />
+                                            <input type="hidden" name="componentId" value="@r.ComponentId" />
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">Xóa thành phần</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-3">Chưa có thành phần nào trong công thức.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Form them thanh phan -->
+            <div class="card bg-light border-0 mb-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">+ Thêm thành phần vào công thức</h6>
+                    <form asp-action="AddComponent" method="post" class="row g-2 align-items-end">
+                        <input type="hidden" name="dishId" value="@Model.Id" />
+                        <div class="col-md-7">
+                            <label class="form-label small fw-semibold">Chọn nguyên liệu / món ăn (tìm kiếm):</label>
+                            <input list="usableComponentsList" id="componentInput" class="form-control form-control-sm" placeholder="Gõ tên để tìm..." required />
+                            <datalist id="usableComponentsList">
+                                @foreach (var c in usableComponents)
+                                {
+                                    <option data-id="@c.Id" value="@c.NameVi (Mã: @c.Id)"></option>
+                                }
+                            </datalist>
+                            <input type="hidden" name="componentId" id="selectedComponentId" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Khối lượng (gram):</label>
+                            <input type="number" name="grams" step="0.1" min="0.1" class="form-control form-control-sm" placeholder="Ví dụ: 100" required />
+                        </div>
+                        <div class="col-md-2 d-grid">
+                            <button type="submit" class="btn btn-success btn-sm">Thêm vào công thức</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Doi soat dinh duong tinh tu cong thuc -->
+            @if (calcNutrition != null)
+            {
+                <h6 class="fw-bold text-secondary mb-2">Đối soát dinh dưỡng (trên 100g):</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered align-middle text-center mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-start">Chỉ số / 100g</th>
+                                <th>Tính từ công thức</th>
+                                <th>Tham chiếu</th>
+                                <th>Độ lệch</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                void RenderComparisonRow(string label, MealShop.ViewModels.NutrientComparison item, string unit = "")
+                                {
+                                    <tr>
+                                        <td class="text-start fw-semibold">@label</td>
+                                        <td>@item.Calculated.ToString("N1") @unit</td>
+                                        <td class="text-muted">@(item.Reference?.ToString("N1") ?? "-") @unit</td>
+                                        <td>
+                                            @if (item.DiffPercent.HasValue)
+                                            {
+                                                var diff = item.DiffPercent.Value;
+                                                var badgeClass = Math.Abs(diff) <= 15 ? "text-success fw-bold" : (Math.Abs(diff) <= 50 ? "text-warning fw-bold" : "text-danger fw-bold");
+                                                <span class="@badgeClass">
+                                                    @(diff > 0 ? $"+{diff}%" : $"{diff}%")
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span>-</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+
+                                RenderComparisonRow("Năng lượng (kcal)", calcNutrition.Kcal);
+                                RenderComparisonRow("Chất đạm (protein)", calcNutrition.Protein, "g");
+                                RenderComparisonRow("Chất béo (fat)", calcNutrition.Fat, "g");
+                                RenderComparisonRow("Chất bột đường (carb)", calcNutrition.Carb, "g");
+                                RenderComparisonRow("Chất xơ (fiber)", calcNutrition.Fiber, "g");
+                                RenderComparisonRow("Nước (water)", calcNutrition.Water, "g");
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Quan ly Khau phan (Portions) & Gia ban -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Khẩu phần & Giá bán (Portions)</h5>
+            <span class="small text-light">Mỗi khẩu phần có khối lượng và giá bán riêng (VND)</span>
+        </div>
+        <div class="card-body p-4">
+            <!-- Bang danh sach khau phan -->
+            <div class="table-responsive mb-4">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Tên khẩu phần</th>
+                            <th class="text-end">Khối lượng (g)</th>
+                            <th class="text-end">Giá bán (VND)</th>
+                            <th class="text-center">Trạng thái bán</th>
+                            <th class="text-center" style="width: 250px;">Cập nhật / Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (food?.Portions.Count > 0)
+                        {
+                            @foreach (var p in food.Portions.OrderBy(x => x.Grams))
+                            {
+                                <tr>
+                                    <form asp-action="UpdatePortion" method="post">
+                                        <input type="hidden" name="portionId" value="@p.Id" />
+                                        <input type="hidden" name="foodId" value="@Model.Id" />
+                                        <td>
+                                            <input type="text" name="name" value="@p.Name" class="form-control form-control-sm" required />
+                                        </td>
+                                        <td class="text-end">
+                                            <input type="number" name="grams" value="@p.Grams" step="0.1" min="0.1" class="form-control form-control-sm text-end" required />
+                                        </td>
+                                        <td class="text-end">
+                                            <input type="number" name="price" value="@((long)p.Price)" step="1000" min="0" class="form-control form-control-sm text-end" required />
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="form-check form-switch d-inline-block">
+                                                <input type="checkbox" name="isActive" value="true" class="form-check-input" checked="@p.IsActive" />
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm">
+                                                <button type="submit" class="btn btn-outline-primary">Lưu</button>
+                                                <button type="submit" asp-action="DeletePortion" asp-route-portionId="@p.Id" asp-route-foodId="@Model.Id" class="btn btn-outline-danger" onclick="return confirm('Bạn có chắc muốn xóa khẩu phần này?');">Xóa</button>
+                                            </div>
+                                        </td>
+                                    </form>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-3">Chưa có khẩu phần nào được thiết lập cho món này.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Form them khau phan moi -->
+            <div class="card bg-light border-0">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">+ Thêm khẩu phần mới</h6>
+                    <form asp-action="AddPortion" method="post" class="row g-2 align-items-end">
+                        <input type="hidden" name="foodId" value="@Model.Id" />
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Tên khẩu phần:</label>
+                            <input type="text" name="name" class="form-control form-control-sm" placeholder="Ví dụ: Suất tiêu chuẩn, Hộp lớn..." required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Khối lượng (gram):</label>
+                            <input type="number" name="grams" step="0.1" min="0.1" class="form-control form-control-sm" placeholder="Ví dụ: 250" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Giá bán (VND):</label>
+                            <input type="number" name="price" step="1000" min="0" class="form-control form-control-sm" placeholder="Ví dụ: 45000" required />
+                        </div>
+                        <div class="col-md-2 d-grid">
+                            <button type="submit" class="btn btn-dark btn-sm">Thêm khẩu phần</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
@@ -214,5 +434,20 @@
 
         kindSelect.addEventListener('change', updateUsableCheck);
         updateUsableCheck();
+
+        // Ho tro chon datalist component Id
+        const compInput = document.getElementById('componentInput');
+        const selectedIdInput = document.getElementById('selectedComponentId');
+        if (compInput && selectedIdInput) {
+            compInput.addEventListener('change', function () {
+                const val = this.value;
+                const match = val.match(/Mã:\s*(\d+)/);
+                if (match) {
+                    selectedIdInput.value = match[1];
+                } else {
+                    selectedIdInput.value = '';
+                }
+            });
+        }
     </script>
 }

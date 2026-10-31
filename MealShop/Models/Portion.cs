@@ -14,4 +14,10 @@ public class Portion
 
     // Khoi luong khau phan (gram)
     public decimal Grams { get; set; }
+
+    // Gia ban khau phan (don vi VND, >= 0)
+    public decimal Price { get; set; }
+
+    // Trang thai con ban hay khong
+    public bool IsActive { get; set; } = true;
 }

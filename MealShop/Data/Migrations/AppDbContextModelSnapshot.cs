@@ -235,10 +235,21 @@ namespace MealShop.Data.Migrations
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("Price")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(12)
+                        .HasColumnType("decimal(12,0)")
+                        .HasDefaultValue(0m);
 
                     b.HasKey("Id");
 
@@ -248,6 +259,8 @@ namespace MealShop.Data.Migrations
                     b.ToTable("Portions", null, t =>
                         {
                             t.HasCheckConstraint("CK_Portion_Grams_Positive", "Grams > 0");
+
+                            t.HasCheckConstraint("CK_Portion_Price_NonNegative", "Price >= 0");
                         });
                 });
 

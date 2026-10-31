@@ -43,6 +43,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddScoped<NutritionCalculatorService>();
 builder.Services.AddScoped<FoodQueryService>();
 builder.Services.AddScoped<AdminFoodService>();
+builder.Services.AddScoped<AdminRecipeService>();
 
 // Add services to the container voi tu dong kiem tra Antiforgery Token cho POST
 builder.Services.AddControllersWithViews(options =>
