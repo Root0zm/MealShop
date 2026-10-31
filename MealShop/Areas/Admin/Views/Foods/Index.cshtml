@@ -1,0 +1,172 @@
+@model MealShop.ViewModels.FoodsIndexViewModel
+@{
+    ViewData["Title"] = "Quản trị thực phẩm & món ăn";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="fw-bold mb-0">Quản trị Thực phẩm & Món ăn</h2>
+        <span class="text-muted">Khu vực quản lý dành cho Quản trị viên (Admin)</span>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-success fw-semibold">
+            + Thêm món / nguyên liệu mới
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <input type="text" name="search" class="form-control" placeholder="Tìm kiếm tên (không dấu)..." value="@Model.Q" />
+            </div>
+            <div class="col-md-2">
+                <select name="kind" class="form-select">
+                    <option value="">-- Tất cả loại --</option>
+                    <option value="dish" selected="@(Model.Kind == "dish")">Món ăn (dish)</option>
+                    <option value="ingredient" selected="@(Model.Kind == "ingredient")">Nguyên liệu (ingredient)</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="category" class="form-select">
+                    <option value="">-- Danh mục --</option>
+                    @foreach (var cat in Model.AvailableCategories)
+                    {
+                        <option value="@cat" selected="@(Model.Category == cat)">@cat</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="isSuspect" class="form-select">
+                    <option value="">-- Dữ liệu nghi vấn --</option>
+                    <option value="true" selected="@(Model.IsSuspect == true)">Chỉ dòng nghi vấn</option>
+                    <option value="false" selected="@(Model.IsSuspect == false)">Dòng chuẩn</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="isSellable" class="form-select">
+                    <option value="">-- Có thể bán --</option>
+                    <option value="true" selected="@(Model.IsSellable == true)">Đang bán (Sellable)</option>
+                    <option value="false" selected="@(Model.IsSellable == false)">Không bán (Ẩn)</option>
+                </select>
+            </div>
+            <div class="col-md-1 d-grid">
+                <button type="submit" class="btn btn-primary">Lọc</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle shadow-sm bg-white rounded">
+        <thead class="table-dark">
+            <tr>
+                <th style="width: 80px;">Mã</th>
+                <th>Tên món / nguyên liệu</th>
+                <th>Loại</th>
+                <th>Danh mục</th>
+                <th class="text-end">Kcal</th>
+                <th class="text-center">Thành phần</th>
+                <th class="text-center">Có thể bán</th>
+                <th class="text-center" style="width: 150px;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.PagedFoods.Items)
+            {
+                <tr>
+                    <td class="fw-bold">@item.Id</td>
+                    <td>
+                        <span class="fw-semibold">@item.NameVi</span>
+                        @if (item.IsSuspect)
+                        {
+                            <span class="badge bg-warning text-dark ms-1" title="@item.QaNote">⚠️ @item.EnergyFlag</span>
+                        }
+                    </td>
+                    <td>
+                        @if (item.Kind == "dish")
+                        {
+                            <span class="badge bg-info text-dark">Món ăn</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Nguyên liệu</span>
+                        }
+                    </td>
+                    <td>@(item.CategoryVi ?? "-")</td>
+                    <td class="text-end fw-bold">@(item.Kcal?.ToString("F1") ?? "-")</td>
+                    <td class="text-center">
+                        @if (item.UsableAsComponent)
+                        {
+                            <span class="text-success">✔</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">✖</span>
+                        }
+                    </td>
+                    <td class="text-center">
+                        @if (item.IsSellable)
+                        {
+                            <span class="badge bg-success">Có</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Ẩn</span>
+                        }
+                    </td>
+                    <td class="text-center">
+                        <div class="btn-group btn-group-sm">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary">Sửa</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">Xóa</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Phan trang -->
+<nav class="d-flex justify-content-between align-items-center mt-3">
+    <span class="text-muted small">
+        Hiển thị trang @Model.PagedFoods.Page / @Model.PagedFoods.TotalPages (Tổng cộng @Model.PagedFoods.TotalCount bản ghi)
+    </span>
+    <ul class="pagination mb-0">
+        <li class="page-item @(Model.PagedFoods.HasPreviousPage ? "" : "disabled")">
+            <a class="page-link" asp-action="Index"
+               asp-route-page="@(Model.PagedFoods.Page - 1)"
+               asp-route-search="@Model.Q"
+               asp-route-kind="@Model.Kind"
+               asp-route-category="@Model.Category"
+               asp-route-isSuspect="@Model.IsSuspect"
+               asp-route-isSellable="@Model.IsSellable">Trước</a>
+        </li>
+        <li class="page-item @(Model.PagedFoods.HasNextPage ? "" : "disabled")">
+            <a class="page-link" asp-action="Index"
+               asp-route-page="@(Model.PagedFoods.Page + 1)"
+               asp-route-search="@Model.Q"
+               asp-route-kind="@Model.Kind"
+               asp-route-category="@Model.Category"
+               asp-route-isSuspect="@Model.IsSuspect"
+               asp-route-isSellable="@Model.IsSellable">Sau</a>
+        </li>
+    </ul>
+</nav>

@@ -10,4 +10,9 @@ public class FoodListItemViewModel
     public decimal? Protein { get; init; }
     public decimal? Fat { get; init; }
     public decimal? Carb { get; init; }
+    public bool UsableAsComponent { get; init; }
+    public bool IsSellable { get; init; }
+    public bool IsSuspect { get; init; }
+    public string? EnergyFlag { get; init; }
+    public string? QaNote { get; init; }
 }

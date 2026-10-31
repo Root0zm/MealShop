@@ -1,0 +1,73 @@
+@model MealShop.Models.Food
+@{
+    ViewData["Title"] = "Xóa món ăn / nguyên liệu";
+    bool canDelete = ViewBag.CanDelete ?? false;
+    string deleteReason = ViewBag.DeleteReason ?? "";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">Xác nhận xóa: @Model.NameVi</h4>
+            </div>
+            <div class="card-body p-4">
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @TempData["ErrorMessage"]
+                    </div>
+                }
+
+                @if (!canDelete)
+                {
+                    <div class="alert alert-warning d-flex align-items-center" role="alert">
+                        <div class="me-3 fs-3">⚠️</div>
+                        <div>
+                            <strong>Không thể xóa món ăn này!</strong>
+                            <p class="mb-0 mt-1">@deleteReason</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                            Sửa món (Ẩn món khỏi menu)
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-danger fw-semibold">
+                        Bạn có chắc chắn muốn xóa vĩnh viễn món ăn / nguyên liệu này khỏi cơ sở dữ liệu?
+                    </p>
+
+                    <table class="table table-bordered">
+                        <tr>
+                            <th class="w-25 bg-light">Mã ID</th>
+                            <td>@Model.Id</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Tên tiếng Việt</th>
+                            <td>@Model.NameVi</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Loại</th>
+                            <td>@(Model.Kind == "dish" ? "Món ăn" : "Nguyên liệu")</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Danh mục</th>
+                            <td>@(Model.CategoryVi ?? "-")</td>
+                        </tr>
+                    </table>
+
+                    <form asp-action="Delete" method="post" class="mt-4 d-flex justify-content-between">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <a asp-action="Index" class="btn btn-secondary">Hủy bỏ</a>
+                        <button type="submit" class="btn btn-danger px-4">Xác nhận Xóa</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

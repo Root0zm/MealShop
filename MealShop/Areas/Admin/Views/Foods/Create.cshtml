@@ -1,0 +1,194 @@
+@model MealShop.ViewModels.AdminFoodFormViewModel
+@{
+    ViewData["Title"] = "Thêm món ăn / nguyên liệu mới";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="fw-bold mb-0">Thêm Món ăn / Nguyên liệu mới</h2>
+            <a asp-action="Index" class="btn btn-outline-secondary">Quay lại danh sách</a>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Thông tin cơ bản</h5>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label asp-for="Kind" class="form-label fw-semibold"></label>
+                            <select asp-for="Kind" class="form-select" id="foodKindSelect">
+                                <option value="dish">Món ăn (dish)</option>
+                                <option value="ingredient">Nguyên liệu (ingredient)</option>
+                            </select>
+                            <span asp-validation-for="Kind" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-8">
+                            <label asp-for="NameVi" class="form-label fw-semibold"></label>
+                            <input asp-for="NameVi" class="form-control" placeholder="Ví dụ: Salad ức gà sốt mè rang" />
+                            <span asp-validation-for="NameVi" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="NameEn" class="form-label fw-semibold"></label>
+                            <input asp-for="NameEn" class="form-control" placeholder="Tên tiếng Anh (nếu có)" />
+                            <span asp-validation-for="NameEn" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="CategoryVi" class="form-label fw-semibold"></label>
+                            <input asp-for="CategoryVi" class="form-control" placeholder="Ví dụ: Món chính, Salad..." />
+                            <span asp-validation-for="CategoryVi" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="form-check mt-2">
+                                <input asp-for="UsableAsComponent" class="form-check-input" id="usableAsComponentCheck" />
+                                <label asp-for="UsableAsComponent" class="form-check-label fw-semibold">
+                                    Dùng làm thành phần cho món khác
+                                </label>
+                                <div class="form-text text-muted">Nguyên liệu (ingredient) luôn bắt buộc chọn trường này.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mt-2">
+                                <input asp-for="IsSellable" class="form-check-input" />
+                                <label asp-for="IsSellable" class="form-check-label fw-semibold">
+                                    Có thể bán trên Menu (IsSellable)
+                                </label>
+                                <div class="form-text text-muted">Bật để khách hàng có thể xem và đặt món này.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold border-bottom pb-2 mb-3 text-primary">Giá trị dinh dưỡng (trên 100g)</h5>
+                    <p class="text-muted small">Để trống ô nếu chưa có số liệu (sẽ lưu null, không tự điền 0).</p>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-3">
+                            <label asp-for="Kcal" class="form-label fw-semibold text-danger"></label>
+                            <input asp-for="Kcal" type="number" step="0.1" class="form-control" />
+                            <span asp-validation-for="Kcal" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Protein" class="form-label fw-semibold text-primary"></label>
+                            <input asp-for="Protein" type="number" step="0.1" class="form-control" />
+                            <span asp-validation-for="Protein" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Fat" class="form-label fw-semibold text-warning"></label>
+                            <input asp-for="Fat" type="number" step="0.1" class="form-control" />
+                            <span asp-validation-for="Fat" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Carb" class="form-label fw-semibold text-success"></label>
+                            <input asp-for="Carb" type="number" step="0.1" class="form-control" />
+                            <span asp-validation-for="Carb" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-3">
+                            <label asp-for="Water" class="form-label"></label>
+                            <input asp-for="Water" type="number" step="0.1" class="form-control" />
+                            <span asp-validation-for="Water" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Fiber" class="form-label"></label>
+                            <input asp-for="Fiber" type="number" step="0.1" class="form-control" />
+                            <span asp-validation-for="Fiber" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Cholesterol" class="form-label"></label>
+                            <input asp-for="Cholesterol" type="number" step="0.1" class="form-control" />
+                            <span asp-validation-for="Cholesterol" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Calcium" class="form-label"></label>
+                            <input asp-for="Calcium" type="number" step="0.1" class="form-control" />
+                            <span asp-validation-for="Calcium" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-3">
+                            <label asp-for="Phosphorus" class="form-label"></label>
+                            <input asp-for="Phosphorus" type="number" step="0.1" class="form-control" />
+                            <span asp-validation-for="Phosphorus" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Iron" class="form-label"></label>
+                            <input asp-for="Iron" type="number" step="0.01" class="form-control" />
+                            <span asp-validation-for="Iron" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Sodium" class="form-label"></label>
+                            <input asp-for="Sodium" type="number" step="0.1" class="form-control" />
+                            <span asp-validation-for="Sodium" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Potassium" class="form-label"></label>
+                            <input asp-for="Potassium" type="number" step="0.1" class="form-control" />
+                            <span asp-validation-for="Potassium" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <label asp-for="Zinc" class="form-label"></label>
+                            <input asp-for="Zinc" type="number" step="0.01" class="form-control" />
+                            <span asp-validation-for="Zinc" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="VitaminA" class="form-label"></label>
+                            <input asp-for="VitaminA" type="number" step="0.1" class="form-control" />
+                            <span asp-validation-for="VitaminA" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="BetaCarotene" class="form-label"></label>
+                            <input asp-for="BetaCarotene" type="number" step="0.1" class="form-control" />
+                            <span asp-validation-for="BetaCarotene" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="VitaminC" class="form-label"></label>
+                            <input asp-for="VitaminC" type="number" step="0.1" class="form-control" />
+                            <span asp-validation-for="VitaminC" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Index" class="btn btn-secondary">Hủy bỏ</a>
+                        <button type="submit" class="btn btn-success px-4">Lưu và Tiếp tục</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const kindSelect = document.getElementById('foodKindSelect');
+        const usableCheck = document.getElementById('usableAsComponentCheck');
+
+        function updateUsableCheck() {
+            if (kindSelect.value === 'ingredient') {
+                usableCheck.checked = true;
+                usableCheck.disabled = true;
+            } else {
+                usableCheck.disabled = false;
+            }
+        }
+
+        kindSelect.addEventListener('change', updateUsableCheck);
+        updateUsableCheck();
+    </script>
+}

@@ -20,7 +20,9 @@ public class FoodQueryService
         string? kind,
         string? category,
         int page = 1,
-        int pageSize = 20)
+        int pageSize = 20,
+        bool? isSuspect = null,
+        bool? isSellable = null)
     {
         if (page < 1)
         {
@@ -54,6 +56,18 @@ public class FoodQueryService
             query = query.Where(f => f.CategoryVi == category);
         }
 
+        // Loc theo du lieu nghi van
+        if (isSuspect.HasValue)
+        {
+            query = query.Where(f => f.IsSuspect == isSuspect.Value);
+        }
+
+        // Loc theo trang thai co the ban
+        if (isSellable.HasValue)
+        {
+            query = query.Where(f => f.IsSellable == isSellable.Value);
+        }
+
         var totalCount = await query.CountAsync();
 
         var items = await query
@@ -69,7 +83,12 @@ public class FoodQueryService
                 Kcal = f.Kcal,
                 Protein = f.Protein,
                 Fat = f.Fat,
-                Carb = f.Carb
+                Carb = f.Carb,
+                UsableAsComponent = f.UsableAsComponent,
+                IsSellable = f.IsSellable,
+                IsSuspect = f.IsSuspect,
+                EnergyFlag = f.EnergyFlag,
+                QaNote = f.QaNote
             })
             .ToListAsync();
 
