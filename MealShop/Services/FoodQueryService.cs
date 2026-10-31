@@ -7,10 +7,12 @@ namespace MealShop.Services;
 public class FoodQueryService
 {
     private readonly AppDbContext _context;
+    private readonly NutritionCalculatorService _calculatorService;
 
-    public FoodQueryService(AppDbContext context)
+    public FoodQueryService(AppDbContext context, NutritionCalculatorService? calculatorService = null)
     {
         _context = context;
+        _calculatorService = calculatorService ?? new NutritionCalculatorService();
     }
 
     public async Task<PagedResult<FoodListItemViewModel>> SearchFoodsAsync(
@@ -104,15 +106,21 @@ public class FoodQueryService
             return null;
         }
 
+        var totalGrams = food.Recipes.Sum(r => r.Grams);
+
         var components = food.Recipes
-            .OrderBy(r => r.Component.NameVi)
+            .OrderByDescending(r => r.Grams)
             .Select(r => new RecipeItemViewModel
             {
                 ComponentId = r.ComponentId,
                 ComponentNameVi = r.Component.NameVi,
-                Grams = r.Grams
+                Grams = r.Grams,
+                Percentage = totalGrams > 0 ? Math.Round((r.Grams / totalGrams) * 100m, 1) : 0m
             })
             .ToList();
+
+        // Tinh dinh duong tu cong thuc
+        var calculatedNutrition = _calculatorService.CalculateDishNutrition(food, food.Recipes.ToList());
 
         return new FoodDetailsViewModel
         {
@@ -142,7 +150,8 @@ public class FoodQueryService
             EnergyFlag = food.EnergyFlag,
             QaNote = food.QaNote,
             IsSuspect = food.IsSuspect,
-            Components = components
+            Components = components,
+            CalculatedNutrition = calculatedNutrition
         };
     }
 }

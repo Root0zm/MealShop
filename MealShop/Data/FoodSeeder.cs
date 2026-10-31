@@ -84,6 +84,63 @@ public static class FoodSeeder
         await context.SaveChangesAsync();
     }
 
+    public static async Task SeedRecipesAsync(AppDbContext context, string? csvFilePath = null)
+    {
+        // Khong nap lap neu bang Recipes da co du lieu
+        if (await context.Recipes.AnyAsync())
+        {
+            return;
+        }
+
+        var path = csvFilePath ?? Path.Combine(AppContext.BaseDirectory, "Data", "Seed", "recipes_draft.csv");
+
+        if (!File.Exists(path))
+        {
+            return;
+        }
+
+        var recipes = new List<Recipe>();
+
+        using (var parser = new TextFieldParser(path))
+        {
+            parser.TextFieldType = FieldType.Delimited;
+            parser.SetDelimiters(",");
+            parser.HasFieldsEnclosedInQuotes = true;
+            parser.TrimWhiteSpace = true;
+
+            // Doc dong tieu de
+            if (!parser.EndOfData)
+            {
+                parser.ReadFields();
+            }
+
+            while (!parser.EndOfData)
+            {
+                var fields = parser.ReadFields();
+                if (fields == null || fields.Length < 3)
+                {
+                    continue;
+                }
+
+                var dishId = int.Parse(fields[0], CultureInfo.InvariantCulture);
+                var componentId = int.Parse(fields[1], CultureInfo.InvariantCulture);
+                var grams = decimal.Parse(fields[2], CultureInfo.InvariantCulture);
+
+                recipes.Add(new Recipe
+                {
+                    DishId = dishId,
+                    DishKind = "dish",
+                    ComponentId = componentId,
+                    Grams = grams,
+                    ComponentUsableAsComponent = true
+                });
+            }
+        }
+
+        await context.Recipes.AddRangeAsync(recipes);
+        await context.SaveChangesAsync();
+    }
+
     private static decimal? ParseDecimal(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))

@@ -35,6 +35,9 @@ public class FoodDetailsViewModel
 
     // Danh sach thanh phan cau thanh mon an (Recipes)
     public IReadOnlyList<RecipeItemViewModel> Components { get; init; } = Array.Empty<RecipeItemViewModel>();
+
+    // Ket qua tinh toan dinh duong tu cong thuc
+    public CalculatedNutritionViewModel? CalculatedNutrition { get; init; }
 }
 
 public class RecipeItemViewModel
@@ -42,4 +45,5 @@ public class RecipeItemViewModel
     public int ComponentId { get; init; }
     public string ComponentNameVi { get; init; } = string.Empty;
     public decimal Grams { get; init; }
+    public decimal Percentage { get; init; }
 }

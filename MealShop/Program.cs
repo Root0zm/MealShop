@@ -9,6 +9,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Dang ky cac dich vu nghiep vu
+builder.Services.AddScoped<NutritionCalculatorService>();
 builder.Services.AddScoped<FoodQueryService>();
 
 // Add services to the container.
@@ -23,6 +24,7 @@ if (app.Environment.IsDevelopment() || args.Contains("--seed-only"))
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await context.Database.MigrateAsync();
     await FoodSeeder.SeedAsync(context);
+    await FoodSeeder.SeedRecipesAsync(context);
 }
 
 // Ho tro chay lenh seed rieng biet ma khong khoi dong web server
