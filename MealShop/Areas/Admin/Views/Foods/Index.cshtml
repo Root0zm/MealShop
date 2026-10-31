@@ -8,7 +8,10 @@
         <h2 class="fw-bold mb-0">Quản trị Thực phẩm & Món ăn</h2>
         <span class="text-muted">Khu vực quản lý dành cho Quản trị viên (Admin)</span>
     </div>
-    <div>
+    <div class="d-flex gap-2">
+        <a asp-area="Admin" asp-controller="Portions" asp-action="Defaults" class="btn btn-outline-success fw-semibold">
+            ⚙ Khẩu phần mặc định
+        </a>
         <a asp-action="Create" class="btn btn-success fw-semibold">
             + Thêm món / nguyên liệu mới
         </a>

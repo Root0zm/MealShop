@@ -1,0 +1,137 @@
+@model MealShop.Services.DefaultPortionPreviewResult
+@{
+    ViewData["Title"] = "Khẩu phần mặc định theo quy tắc";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="fw-bold mb-0">Thiết lập Khẩu phần mặc định theo Quy tắc</h2>
+        <span class="text-muted">Áp dụng bảng giá và khối lượng chuẩn từ cấu hình cho các danh mục thực phẩm</span>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Defaults" class="btn btn-outline-secondary">Làm mới / Xem trước</a>
+        @if (Model.TotalToCreate > 0)
+        {
+            <form asp-action="ApplyDefaults" method="post" onsubmit="return confirm('Bạn có chắc muốn áp dụng tạo khẩu phần mặc định cho các món ăn chưa có?');">
+                <button type="submit" class="btn btn-success fw-semibold">
+                    Áp dụng ngay (@Model.TotalToCreate khẩu phần)
+                </button>
+            </form>
+        }
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card bg-success text-white shadow-sm">
+            <div class="card-body">
+                <div class="fs-6 text-uppercase fw-semibold">Sẽ tạo mới</div>
+                <div class="display-6 fw-bold">@Model.TotalToCreate</div>
+                <div class="small">Món sẽ được thêm khẩu phần và bật 'Có thể bán'</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-secondary text-white shadow-sm">
+            <div class="card-body">
+                <div class="fs-6 text-uppercase fw-semibold">Đã có sẵn (Bỏ qua)</div>
+                <div class="display-6 fw-bold">@Model.TotalAlreadyExists</div>
+                <div class="small">Đã có khẩu phần trùng tên, giữ nguyên không đè</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-warning text-dark shadow-sm">
+            <div class="card-body">
+                <div class="fs-6 text-uppercase fw-semibold">Nghi vấn chất lượng (Bỏ qua)</div>
+                <div class="display-6 fw-bold">@Model.TotalSuspect</div>
+                <div class="small">Món có cờ IsSuspect = true không được tự động bán</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">Chi tiết theo từng Nhóm / Tab quy tắc</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Tab hiển thị</th>
+                    <th>Danh mục trong dataset</th>
+                    <th>Khẩu phần</th>
+                    <th class="text-end">Khối lượng</th>
+                    <th class="text-end">Giá bán</th>
+                    <th class="text-center text-success fw-bold">Sẽ tạo mới</th>
+                    <th class="text-center text-muted">Đã có</th>
+                    <th class="text-center text-warning fw-bold">Nghi vấn (Bỏ qua)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var tab in Model.TabSummaries)
+                {
+                    <tr>
+                        <td class="fw-bold">@tab.Tab</td>
+                        <td>@tab.CategoryVi</td>
+                        <td><span class="badge bg-light text-dark border">@tab.PortionName</span></td>
+                        <td class="text-end">@tab.Grams.ToString("N0") g</td>
+                        <td class="text-end fw-semibold text-danger">@tab.Price.ToString("N0") ₫</td>
+                        <td class="text-center">
+                            @if (tab.ToCreateCount > 0)
+                            {
+                                <span class="badge bg-success fs-6">@tab.ToCreateCount</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">0</span>
+                            }
+                        </td>
+                        <td class="text-center text-muted">@tab.AlreadyExistsCount</td>
+                        <td class="text-center">
+                            @if (tab.SuspectCount > 0)
+                            {
+                                <span class="badge bg-warning text-dark" title="@string.Join(", ", tab.SuspectFoodNames)">
+                                    ⚠️ @tab.SuspectCount
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">0</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (Model.TotalSuspect > 0)
+{
+    <div class="card shadow-sm border-warning mb-4">
+        <div class="card-header bg-warning bg-opacity-25 fw-bold">
+            ⚠️ Danh sách món nghi vấn chất lượng bị bỏ qua (không tự tạo khẩu phần bán)
+        </div>
+        <div class="card-body">
+            <ul class="mb-0 small text-muted">
+                @foreach (var tab in Model.TabSummaries.Where(t => t.SuspectCount > 0))
+                {
+                    <li>
+                        <strong>@tab.Tab (@tab.CategoryVi):</strong>
+                        @string.Join("; ", tab.SuspectFoodNames)
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+}
