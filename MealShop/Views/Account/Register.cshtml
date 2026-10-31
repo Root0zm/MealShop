@@ -1,0 +1,55 @@
+@model MealShop.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Đăng ký";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Tạo tài khoản mới</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Register" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label fw-semibold"></label>
+                        <input asp-for="FullName" class="form-control" placeholder="Nguyễn Văn A" />
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold"></label>
+                        <input asp-for="Email" class="form-control" placeholder="name@example.com" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-semibold"></label>
+                        <input asp-for="Password" class="form-control" placeholder="Tối thiểu 8 ký tự, có cả chữ và số" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ConfirmPassword" class="form-label fw-semibold"></label>
+                        <input asp-for="ConfirmPassword" class="form-control" placeholder="Nhập lại mật khẩu" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">Đăng ký</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center bg-light">
+                <span>Đã có tài khoản? </span>
+                <a asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" class="fw-semibold text-decoration-none">Đăng nhập</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

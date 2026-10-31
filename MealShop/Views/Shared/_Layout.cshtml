@@ -25,6 +25,34 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
                         </li>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-danger fw-bold" asp-area="Admin" asp-controller="Foods" asp-action="Index">Quản trị</a>
+                            </li>
+                        }
+                    </ul>
+                    <ul class="navbar-nav">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item d-flex align-items-center me-3">
+                                <span class="text-dark fw-semibold">👤 @User.Identity.Name</span>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm">Đăng xuất</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Đăng ký</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-outline-primary btn-sm ms-2" asp-area="" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

@@ -1,0 +1,22 @@
+@{
+    ViewData["Title"] = "Từ chối truy cập";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 text-center">
+        <div class="card shadow-sm border-danger">
+            <div class="card-body p-5">
+                <div class="text-danger mb-3" style="font-size: 4rem;">🚫</div>
+                <h2 class="text-danger fw-bold">Không có quyền truy cập</h2>
+                <p class="text-muted mt-3">
+                    Bạn không có quyền truy cập vào khu vực này. Khu vực này chỉ dành riêng cho Quản trị viên (Admin).
+                </p>
+                <div class="mt-4">
+                    <a asp-controller="Foods" asp-action="Index" class="btn btn-outline-primary">
+                        Quay lại trang danh sách món ăn
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
