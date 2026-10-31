@@ -114,7 +114,7 @@ public class AdminFoodService
         var isUsedAsComponent = await _context.Recipes.AnyAsync(r => r.ComponentId == id);
         if (isUsedAsComponent)
         {
-            return (false, "Khong the xoa mon nay vi dang duoc dung lam thanh phan trong cong thuc khac. Goi y: ban co the an mon bang cach tat 'Co the ban tren menu' (IsSellable = false).");
+            return (false, "Không thể xóa món này vì đang được dùng làm thành phần trong công thức khác. Gợi ý: bạn có thể ẩn món bằng cách tắt 'Có thể bán trên menu' (IsSellable = false).");
         }
 
         return (true, string.Empty);
@@ -132,7 +132,7 @@ public class AdminFoodService
         var food = await _context.Foods.FirstOrDefaultAsync(f => f.Id == id);
         if (food == null)
         {
-            return (false, $"Khong tim thay thuc pham voi ma {id}.");
+            return (false, $"Không tìm thấy thực phẩm với mã {id}.");
         }
 
         _context.Foods.Remove(food);

@@ -29,35 +29,35 @@ public class AdminRecipeService
     {
         if (grams <= 0)
         {
-            return (false, "Khoi luong thanh phan phai lon hon 0 gram.");
+            return (false, "Khối lượng thành phần phải lớn hơn 0 gram.");
         }
 
         if (dishId == componentId)
         {
-            return (false, "Mon an khong the tu tham chieu chinh no lam thanh phan.");
+            return (false, "Món ăn không thể tự tham chiếu chính nó làm thành phần.");
         }
 
         var dish = await _context.Foods.FirstOrDefaultAsync(f => f.Id == dishId);
         if (dish == null || dish.Kind != "dish")
         {
-            return (false, "Chi co the them thanh phan vao mon an (dish).");
+            return (false, "Chỉ có thể thêm thành phần vào món ăn (dish).");
         }
 
         var component = await _context.Foods.FirstOrDefaultAsync(f => f.Id == componentId);
         if (component == null)
         {
-            return (false, "Khong tim thay thanh phan duoc chon.");
+            return (false, "Không tìm thấy thành phần được chọn.");
         }
 
         if (!component.UsableAsComponent)
         {
-            return (false, "Thuc pham nay khong duoc phep dung lam thanh phan (UsableAsComponent = false).");
+            return (false, "Thực phẩm này không được phép dùng làm thành phần (UsableAsComponent = false).");
         }
 
         var exists = await _context.Recipes.AnyAsync(r => r.DishId == dishId && r.ComponentId == componentId);
         if (exists)
         {
-            return (false, "Thanh phan nay da ton tai trong cong thuc cua mon an.");
+            return (false, "Thành phần này đã tồn tại trong công thức của món ăn.");
         }
 
         var recipe = new Recipe
@@ -73,11 +73,11 @@ public class AdminRecipeService
         {
             _context.Recipes.Add(recipe);
             await _context.SaveChangesAsync();
-            return (true, $"Da them thanh phan '{component.NameVi}' ({grams:F1} g) vao cong thuc.");
+            return (true, $"Đã thêm thành phần '{component.NameVi}' ({grams:F1} g) vào công thức.");
         }
         catch (DbUpdateException ex)
         {
-            return (false, $"Loi tu co so du lieu khi them thanh phan: {ex.InnerException?.Message ?? ex.Message}");
+            return (false, $"Lỗi từ cơ sở dữ liệu khi thêm thành phần: {ex.InnerException?.Message ?? ex.Message}");
         }
     }
 
@@ -86,7 +86,7 @@ public class AdminRecipeService
     {
         if (grams <= 0)
         {
-            return (false, "Khoi luong thanh phan phai lon hon 0 gram.");
+            return (false, "Khối lượng thành phần phải lớn hơn 0 gram.");
         }
 
         var recipe = await _context.Recipes
@@ -95,7 +95,7 @@ public class AdminRecipeService
 
         if (recipe == null)
         {
-            return (false, "Khong tim thay thanh phan nay trong cong thuc.");
+            return (false, "Không tìm thấy thành phần này trong công thức.");
         }
 
         recipe.Grams = grams;
@@ -103,11 +103,11 @@ public class AdminRecipeService
         try
         {
             await _context.SaveChangesAsync();
-            return (true, $"Da cap nhat khoi luong '{recipe.Component.NameVi}' thanh {grams:F1} g.");
+            return (true, $"Đã cập nhật khối lượng '{recipe.Component.NameVi}' thành {grams:F1} g.");
         }
         catch (DbUpdateException ex)
         {
-            return (false, $"Loi khi cap nhat thanh phan: {ex.InnerException?.Message ?? ex.Message}");
+            return (false, $"Lỗi khi cập nhật thành phần: {ex.InnerException?.Message ?? ex.Message}");
         }
     }
 
@@ -120,13 +120,13 @@ public class AdminRecipeService
 
         if (recipe == null)
         {
-            return (false, "Khong tim thay thanh phan trong cong thuc de xoa.");
+            return (false, "Không tìm thấy thành phần trong công thức để xóa.");
         }
 
         var name = recipe.Component?.NameVi ?? componentId.ToString();
         _context.Recipes.Remove(recipe);
         await _context.SaveChangesAsync();
-        return (true, $"Da xoa thanh phan '{name}' khoi cong thuc.");
+        return (true, $"Đã xóa thành phần '{name}' khỏi công thức.");
     }
 
     // Them khau phan moi cho mon an
@@ -134,24 +134,24 @@ public class AdminRecipeService
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            return (false, "Ten khau phan khong duoc de trong.");
+            return (false, "Tên khẩu phần không được để trống.");
         }
 
         if (grams <= 0)
         {
-            return (false, "Khoi luong khau phan phai lon hon 0 gram.");
+            return (false, "Khối lượng khẩu phần phải lớn hơn 0 gram.");
         }
 
         if (price < 0)
         {
-            return (false, "Gia ban khau phan khong duoc am.");
+            return (false, "Giá bán khẩu phần không được âm.");
         }
 
         var trimmedName = name.Trim();
         var exists = await _context.Portions.AnyAsync(p => p.FoodId == foodId && p.Name.ToLower() == trimmedName.ToLower());
         if (exists)
         {
-            return (false, $"Khau phan '{trimmedName}' da ton tai trong mon an nay.");
+            return (false, $"Khẩu phần '{trimmedName}' đã tồn tại trong món ăn này.");
         }
 
         var portion = new Portion
@@ -167,11 +167,11 @@ public class AdminRecipeService
         {
             _context.Portions.Add(portion);
             await _context.SaveChangesAsync();
-            return (true, $"Da them khau phan '{trimmedName}' thanh cong.");
+            return (true, $"Đã thêm khẩu phần '{trimmedName}' thành công.");
         }
         catch (DbUpdateException ex)
         {
-            return (false, $"Loi CSDL khi tao khau phan: {ex.InnerException?.Message ?? ex.Message}");
+            return (false, $"Lỗi CSDL khi tạo khẩu phần: {ex.InnerException?.Message ?? ex.Message}");
         }
     }
 
@@ -180,30 +180,30 @@ public class AdminRecipeService
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            return (false, "Ten khau phan khong duoc de trong.");
+            return (false, "Tên khẩu phần không được để trống.");
         }
 
         if (grams <= 0)
         {
-            return (false, "Khoi luong khau phan phai lon hon 0 gram.");
+            return (false, "Khối lượng khẩu phần phải lớn hơn 0 gram.");
         }
 
         if (price < 0)
         {
-            return (false, "Gia ban khau phan khong duoc am.");
+            return (false, "Giá bán khẩu phần không được âm.");
         }
 
         var portion = await _context.Portions.FirstOrDefaultAsync(p => p.Id == portionId);
         if (portion == null)
         {
-            return (false, "Khong tim thay khau phan can cap nhat.");
+            return (false, "Không tìm thấy khẩu phần cần cập nhật.");
         }
 
         var trimmedName = name.Trim();
         var exists = await _context.Portions.AnyAsync(p => p.FoodId == portion.FoodId && p.Id != portionId && p.Name.ToLower() == trimmedName.ToLower());
         if (exists)
         {
-            return (false, $"Khau phan trung ten '{trimmedName}' da ton tai trong mon an nay.");
+            return (false, $"Khẩu phần trùng tên '{trimmedName}' đã tồn tại trong món ăn này.");
         }
 
         portion.Name = trimmedName;
@@ -214,11 +214,11 @@ public class AdminRecipeService
         try
         {
             await _context.SaveChangesAsync();
-            return (true, $"Cap nhat khau phan '{trimmedName}' thanh cong.");
+            return (true, $"Cập nhật khẩu phần '{trimmedName}' thành công.");
         }
         catch (DbUpdateException ex)
         {
-            return (false, $"Loi CSDL khi cap nhat khau phan: {ex.InnerException?.Message ?? ex.Message}");
+            return (false, $"Lỗi CSDL khi cập nhật khẩu phần: {ex.InnerException?.Message ?? ex.Message}");
         }
     }
 
@@ -228,12 +228,12 @@ public class AdminRecipeService
         var portion = await _context.Portions.FirstOrDefaultAsync(p => p.Id == portionId);
         if (portion == null)
         {
-            return (false, "Khong tim thay khau phan de xoa.");
+            return (false, "Không tìm thấy khẩu phần để xóa.");
         }
 
         var name = portion.Name;
         _context.Portions.Remove(portion);
         await _context.SaveChangesAsync();
-        return (true, $"Da xoa khau phan '{name}'.");
+        return (true, $"Đã xóa khẩu phần '{name}'.");
     }
 }
