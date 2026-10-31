@@ -48,6 +48,7 @@ builder.Services.AddScoped<FoodQueryService>();
 builder.Services.AddScoped<AdminFoodService>();
 builder.Services.AddScoped<AdminRecipeService>();
 builder.Services.AddScoped<DefaultPortionService>();
+builder.Services.AddScoped<MenuService>();
 
 // Add services to the container voi tu dong kiem tra Antiforgery Token cho POST
 builder.Services.AddControllersWithViews(options =>
@@ -98,6 +99,6 @@ app.MapControllerRoute(
 // Route mac dinh
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Foods}/{action=Index}/{id?}");
+    pattern: "{controller=Menu}/{action=Index}/{id?}");
 
 app.Run();

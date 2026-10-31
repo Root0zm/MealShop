@@ -1,0 +1,58 @@
+@model MealShop.ViewModels.MenuItemViewModel
+
+<article class="dish-card">
+    <div class="dish-card-thumb" style="background: @Model.TintColor;">
+        <svg width="76" height="76" viewBox="0 0 64 64" fill="none" stroke="@Model.InkColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M8 28h48c0 13-10.7 24-24 24S8 41 8 28z"></path>
+            <path d="M22 57h20"></path>
+            <path d="M24 11c-3 3 3 5 0 9M32 9c-3 3 3 5 0 9M40 11c-3 3 3 5 0 9"></path>
+        </svg>
+        @if (Model.IsLowFat)
+        {
+            <span class="dish-tag">Ít béo</span>
+        }
+    </div>
+    <div class="dish-card-body">
+        <div>
+            <h3 class="dish-name">@Model.Name</h3>
+            <p class="dish-desc">@Model.Description</p>
+        </div>
+
+        <div class="dish-energy-row">
+            @if (Model.HasCompleteNutrition)
+            {
+                <span class="dish-kcal">@Model.Kcal</span>
+                <span class="dish-portion-text">kcal · @Model.PortionName (@Model.PortionGrams.ToString("N0") g)</span>
+            }
+            else
+            {
+                <span class="dish-portion-text text-muted">chưa đủ dữ liệu dinh dưỡng</span>
+            }
+        </div>
+
+        @if (Model.HasCompleteNutrition)
+        {
+            <div role="img" aria-label="Tỉ lệ năng lượng: đạm @Model.ShareProtein%, béo @Model.ShareFat%, bột đường @Model.ShareCarb%" class="energy-bar">
+                <div style="width: @(Model.ShareProtein)%; background: #1F5F3A;" title="Đạm: @Model.ShareProtein%"></div>
+                <div style="width: @(Model.ShareFat)%; background: #E0A526;" title="Béo: @Model.ShareFat%"></div>
+                <div style="width: @(Model.ShareCarb)%; background: #5B8DB8;" title="Bột đường: @Model.ShareCarb%"></div>
+            </div>
+
+            <div class="dish-macro-text">
+                <span class="macro-badge"><span class="dot" style="background: #1F5F3A;"></span>Đạm @Model.Protein g</span>
+                <span class="macro-badge"><span class="dot" style="background: #E0A526;"></span>Béo @Model.Fat g</span>
+                <span class="macro-badge"><span class="dot" style="background: #5B8DB8;"></span>Bột đường @Model.Carb g</span>
+            </div>
+        }
+
+        <div class="dish-footer">
+            <span class="dish-price">@Model.Price.ToString("N0") ₫</span>
+            <button type="button" class="btn-dish-add" data-portion-id="@Model.PortionId" aria-label="Thêm @Model.Name vào bữa">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" aria-hidden="true">
+                    <path d="M12 5v14M5 12h14"></path>
+                </svg>
+                Thêm
+            </button>
+        </div>
+    </div>
+</article>

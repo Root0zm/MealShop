@@ -4,71 +4,72 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - MealShop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/MealShop.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand fw-bold text-success" asp-area="" asp-controller="Foods" asp-action="Index">MealShop</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Foods" asp-action="Index">Thực phẩm & Món ăn</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
-                        </li>
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-danger fw-bold" asp-area="Admin" asp-controller="Foods" asp-action="Index">Quản trị</a>
-                            </li>
-                        }
-                    </ul>
-                    <ul class="navbar-nav">
+    <header class="main-header mb-4">
+        <div class="container-xl py-2">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <!-- Brand logo -->
+                <a class="brand-link" asp-area="" asp-controller="Menu" asp-action="Index">
+                    <svg width="30" height="30" viewBox="0 0 32 32" fill="none" stroke="#2F7D4F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M5 27C5 14 13 6 27 5c0 14-8 22-20 22z"></path>
+                        <path d="M5 27c5-8 10-12 16-15"></path>
+                    </svg>
+                    <span>MealShop</span>
+                </a>
+
+                <!-- Thanh tim kiem dau trang -->
+                <form asp-area="" asp-controller="Menu" asp-action="Index" method="get" class="flex-grow-1 mx-lg-4" style="max-width: 450px;">
+                    <label for="headerSearchInput" class="visually-hidden">Tìm món ăn</label>
+                    <input id="headerSearchInput" name="search" type="search" placeholder="Tìm món, ví dụ: bun cha, pho..." class="form-control search-input-header w-100" />
+                </form>
+
+                <!-- Navigation links -->
+                <nav class="d-flex align-items-center flex-wrap gap-2">
+                    <a class="nav-custom-link" asp-area="" asp-controller="Menu" asp-action="Index">Thực đơn</a>
+                    <a class="nav-custom-link" asp-area="" asp-controller="Foods" asp-action="Index">Tra cứu dinh dưỡng</a>
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a class="nav-custom-link text-danger fw-bold" asp-area="Admin" asp-controller="Foods" asp-action="Index">Quản trị</a>
+                    }
+
+                    <div class="d-flex align-items-center ms-lg-2 ps-lg-2 border-start">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <li class="nav-item d-flex align-items-center me-3">
-                                <span class="text-dark fw-semibold">👤 @User.Identity.Name</span>
-                            </li>
-                            <li class="nav-item">
-                                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-outline-secondary btn-sm">Đăng xuất</button>
-                                </form>
-                            </li>
+                            <span class="text-dark fw-semibold small me-2">👤 @User.Identity.Name</span>
+                            <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-secondary btn-sm" style="height: 38px;">Đăng xuất</button>
+                            </form>
                         }
                         else
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Đăng ký</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="btn btn-outline-primary btn-sm ms-2" asp-area="" asp-controller="Account" asp-action="Login">Đăng nhập</a>
-                            </li>
+                            <a class="btn btn-outline-secondary btn-sm me-2" style="height: 38px; line-height: 24px;" asp-area="" asp-controller="Account" asp-action="Register">Đăng ký</a>
+                            <a class="btn btn-primary btn-sm" style="height: 38px; line-height: 24px; background: #2F7D4F; border-color: #2F7D4F;" asp-area="" asp-controller="Account" asp-action="Login">Đăng nhập</a>
                         }
-                    </ul>
-                </div>
+                    </div>
+                </nav>
             </div>
-        </nav>
+        </div>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+    <div class="container-xl">
+        <main role="main" class="pb-5">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted py-3 mt-4">
-        <div class="container text-center">
-            &copy; 2026 - MealShop - Dinh dưỡng chuẩn hóa từ công thức
+    <footer class="footer border-top text-muted py-4 mt-5 bg-white">
+        <div class="container-xl text-center small">
+            &copy; 2026 - MealShop - Dinh dưỡng chuẩn hóa từ công thức thực phẩm Việt Nam
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
