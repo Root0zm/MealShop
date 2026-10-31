@@ -1,11 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using MealShop.Data;
+using MealShop.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Dang ky AppDbContext voi SQL Server
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Dang ky cac dich vu nghiep vu
+builder.Services.AddScoped<FoodQueryService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -44,6 +48,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Foods}/{action=Index}/{id?}");
 
 app.Run();

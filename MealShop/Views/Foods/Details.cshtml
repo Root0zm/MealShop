@@ -1,0 +1,223 @@
+@model FoodDetailsViewModel
+
+@{
+    ViewData["Title"] = $"Chi tiết: {Model.NameVi}";
+}
+
+<div class="mb-3">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        &larr; Quay lại danh sách
+    </a>
+</div>
+
+<!-- Thong tin chung cua mon an -->
+<div class="card mb-4 shadow-sm border-0">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+            <div>
+                <h1 class="h3 fw-bold text-success mb-1">@Model.NameVi</h1>
+                @if (!string.IsNullOrEmpty(Model.NameEn))
+                {
+                    <p class="text-muted fst-italic mb-2">@Model.NameEn</p>
+                }
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+                @if (Model.Kind == "dish")
+                {
+                    <span class="badge bg-primary fs-6">Món ăn</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary fs-6">Nguyên liệu</span>
+                }
+
+                @if (Model.UsableAsComponent)
+                {
+                    <span class="badge bg-info text-dark">Dùng làm thành phần được</span>
+                }
+
+                @if (Model.IsSellable)
+                {
+                    <span class="badge bg-success">Bán trên Menu</span>
+                }
+            </div>
+        </div>
+
+        <div class="row mt-3 text-muted small">
+            <div class="col-sm-4">
+                <strong>Mã ID:</strong> #@Model.Id
+            </div>
+            <div class="col-sm-4">
+                <strong>Danh mục:</strong> @(Model.CategoryVi ?? "Chưa phân loại")
+            </div>
+            <div class="col-sm-4">
+                <strong>Cờ năng lượng:</strong> @(Model.EnergyFlag ?? "Bình thường")
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Canh bao du lieu nghi van (IsSuspect) -->
+@if (Model.IsSuspect)
+{
+    <div class="alert alert-danger d-flex align-items-center shadow-sm" role="alert">
+        <div class="me-2 fs-4">⚠️</div>
+        <div>
+            <strong>Cảnh báo chất lượng dữ liệu (Nghi vấn):</strong>
+            <span>@(string.IsNullOrEmpty(Model.QaNote) ? "Dữ liệu dinh dưỡng của thực phẩm này có sai lệch hoặc bất thường trong dataset gốc." : Model.QaNote)</span>
+        </div>
+    </div>
+}
+
+<div class="row g-4">
+    <!-- Bang gia tri dinh duong (tinh tren 100g) -->
+    <div class="col-lg-7">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-success text-white fw-bold">
+                Thành phần dinh dưỡng (tính trên 100g thực phẩm)
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped mb-0">
+                        <tbody>
+                            <tr class="table-light">
+                                <th colspan="3" class="text-success fw-bold">Nhóm Năng lượng & Đa lượng</th>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">Năng lượng</td>
+                                <td class="text-end fw-bold">@(Model.Kcal?.ToString("N1") ?? "-")</td>
+                                <td style="width: 80px;">kcal</td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">Nước</td>
+                                <td class="text-end">@(Model.Water?.ToString("N1") ?? "-")</td>
+                                <td>g</td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">Chất đạm (Protein)</td>
+                                <td class="text-end fw-bold text-primary">@(Model.Protein?.ToString("N1") ?? "-")</td>
+                                <td>g</td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">Chất béo (Fat / Lipid)</td>
+                                <td class="text-end fw-bold text-danger">@(Model.Fat?.ToString("N1") ?? "-")</td>
+                                <td>g</td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">Chất bột đường (Carb)</td>
+                                <td class="text-end fw-bold text-warning">@(Model.Carb?.ToString("N1") ?? "-")</td>
+                                <td>g</td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">Chất xơ (Fiber)</td>
+                                <td class="text-end">@(Model.Fiber?.ToString("N1") ?? "-")</td>
+                                <td>g</td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">Cholesterol</td>
+                                <td class="text-end">@(Model.Cholesterol?.ToString("N1") ?? "-")</td>
+                                <td>mg</td>
+                            </tr>
+
+                            <tr class="table-light">
+                                <th colspan="3" class="text-success fw-bold">Khoáng chất</th>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">Canxi (Calcium)</td>
+                                <td class="text-end">@(Model.Calcium?.ToString("N1") ?? "-")</td>
+                                <td>mg</td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">Phốt pho (Phosphorus)</td>
+                                <td class="text-end">@(Model.Phosphorus?.ToString("N1") ?? "-")</td>
+                                <td>mg</td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">Sắt (Iron)</td>
+                                <td class="text-end">@(Model.Iron?.ToString("N2") ?? "-")</td>
+                                <td>mg</td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">Natri (Sodium)</td>
+                                <td class="text-end">@(Model.Sodium?.ToString("N1") ?? "-")</td>
+                                <td>mg</td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">Kali (Potassium)</td>
+                                <td class="text-end">@(Model.Potassium?.ToString("N1") ?? "-")</td>
+                                <td>mg</td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">Kẽm (Zinc)</td>
+                                <td class="text-end">@(Model.Zinc?.ToString("N2") ?? "-")</td>
+                                <td>mg</td>
+                            </tr>
+
+                            <tr class="table-light">
+                                <th colspan="3" class="text-success fw-bold">Vitamin</th>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">Vitamin A</td>
+                                <td class="text-end">@(Model.VitaminA?.ToString("N1") ?? "-")</td>
+                                <td>µg</td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">Beta-Carotene</td>
+                                <td class="text-end">@(Model.BetaCarotene?.ToString("N1") ?? "-")</td>
+                                <td>µg</td>
+                            </tr>
+                            <tr>
+                                <td class="ps-3">Vitamin C</td>
+                                <td class="text-end">@(Model.VitaminC?.ToString("N1") ?? "-")</td>
+                                <td>mg</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danh sach thanh phan cau thanh (cong thuc) -->
+    <div class="col-lg-5">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-light fw-bold text-dark">
+                Công thức định lượng thành phần (Recipes)
+            </div>
+            <div class="card-body">
+                @if (Model.Components.Count == 0)
+                {
+                    <div class="alert alert-secondary text-center my-3" role="alert">
+                        <em>Món ăn chưa có công thức thành phần.</em>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nguyên liệu / Thành phần</th>
+                                    <th class="text-end">Khối lượng (g)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var comp in Model.Components)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a asp-action="Details" asp-route-id="@comp.ComponentId" class="text-decoration-none">
+                                                @comp.ComponentNameVi
+                                            </a>
+                                        </td>
+                                        <td class="text-end fw-semibold">@comp.Grams.ToString("N1") g</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
