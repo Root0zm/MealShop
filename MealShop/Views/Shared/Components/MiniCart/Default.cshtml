@@ -1,44 +1,87 @@
+@model MealShop.ViewModels.CartViewModel
+
 <aside class="mini-cart-card">
     <div class="d-flex align-items-baseline justify-content-between mb-3">
         <h2 class="h5 fw-bold mb-0 text-dark">Bữa của bạn</h2>
-        <span class="text-muted small">0 món</span>
+        <span class="text-muted small">@Model.TotalItemsCount món</span>
     </div>
 
-    <!-- Trang thai rong o Phan C -->
-    <div class="text-center py-4 text-muted border-top border-bottom my-2">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8FA095" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="mb-2" aria-hidden="true">
-            <path d="M3 4h2.5l2 11h10l2-8H7"></path>
-            <circle cx="9" cy="19.5" r="1.4"></circle>
-            <circle cx="17" cy="19.5" r="1.4"></circle>
-        </svg>
-        <p class="mb-0 small">Chưa có món nào trong bữa của bạn.</p>
-        <span class="small text-secondary">Hãy bấm <strong>"Thêm"</strong> món chính để bắt đầu.</span>
-    </div>
-
-    <div class="nutrition-summary-box my-3 p-3 rounded-3" style="background: #F4F7F2;">
-        <div class="d-flex align-items-baseline justify-content-between">
-            <span class="small fw-semibold text-secondary">Năng lượng cả bữa</span>
-            <span class="h4 fw-bold mb-0 text-dark">0 kcal</span>
+    @if (Model.Warnings.Count > 0)
+    {
+        <div class="alert alert-warning py-2 small mb-3">
+            @foreach (var w in Model.Warnings)
+            {
+                <div>@w</div>
+            }
         </div>
-        <div role="img" aria-label="Tỉ lệ năng lượng" class="energy-bar mt-2 mb-2">
-            <div style="width: 0%; background: #1F5F3A"></div>
-            <div style="width: 0%; background: #E0A526"></div>
-            <div style="width: 0%; background: #5B8DB8"></div>
-        </div>
-        <div class="d-flex justify-content-between small text-muted">
-            <span>Đạm 0 g</span>
-            <span>Béo 0 g</span>
-            <span>Bột đường 0 g</span>
-        </div>
-        <div class="small text-secondary mt-1">Chiếm 0% mức 2.000 kcal mỗi ngày</div>
-    </div>
+    }
 
-    <div class="d-flex align-items-baseline justify-content-between border-top pt-3 mb-3">
-        <span class="fw-semibold text-secondary">Tạm tính</span>
-        <span class="h4 fw-bold mb-0" style="color: #B4390F;">0 ₫</span>
-    </div>
+    @if (Model.Items.Count > 0)
+    {
+        <div class="cart-items-list border-top my-2">
+            @foreach (var item in Model.Items)
+            {
+                <div class="d-flex align-items-center justify-content-between gap-2 py-2 border-bottom">
+                    <div class="min-w-0 flex-grow-1">
+                        <div class="fw-semibold small text-dark text-truncate">@item.FoodName</div>
+                        <div class="text-muted" style="font-size: 12px;">
+                            @item.PortionName · @item.PortionGrams.ToString("N0") g × @item.Quantity
+                        </div>
+                    </div>
+                    <div class="text-end flex-shrink-0">
+                        <div class="fw-bold small text-dark">@item.LinePrice.ToVnd()</div>
+                        <div class="text-muted" style="font-size: 12px;">
+                            @(item.HasNutrition ? $"{item.Kcal} kcal" : "chưa đủ dữ liệu")
+                        </div>
+                    </div>
+                    <form asp-controller="Cart" asp-action="Remove" method="post" class="d-inline ms-1">
+                        <input type="hidden" name="portionId" value="@item.PortionId" />
+                        <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                        <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="Xóa món này" aria-label="Xóa @item.FoodName">
+                            ✕
+                        </button>
+                    </form>
+                </div>
+            }
+        </div>
 
-    <a href="#" class="btn btn-main-green w-100 disabled" aria-disabled="true">
-        Xem giỏ và đặt hàng
-    </a>
+        <div class="nutrition-summary-box my-3 p-3 rounded-3" style="background: #F4F7F2;">
+            <partial name="_CartNutrition" model="Model" />
+        </div>
+
+        <div class="d-flex align-items-baseline justify-content-between border-top pt-3 mb-3">
+            <span class="fw-semibold text-secondary">Tạm tính</span>
+            <span class="h4 fw-bold mb-0" style="color: #B4390F;">@Model.TotalAmount.ToVnd()</span>
+        </div>
+
+        <a asp-controller="Cart" asp-action="Index" class="btn btn-main-green w-100">
+            Xem giỏ và đặt hàng
+        </a>
+    }
+    else
+    {
+        <!-- Trang thai rong -->
+        <div class="text-center py-4 text-muted border-top border-bottom my-2">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8FA095" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="mb-2" aria-hidden="true">
+                <path d="M3 4h2.5l2 11h10l2-8H7"></path>
+                <circle cx="9" cy="19.5" r="1.4"></circle>
+                <circle cx="17" cy="19.5" r="1.4"></circle>
+            </svg>
+            <p class="mb-0 small">Chưa có món nào trong bữa của bạn.</p>
+            <span class="small text-secondary">Hãy bấm <strong>"Thêm"</strong> món chính để bắt đầu.</span>
+        </div>
+
+        <div class="nutrition-summary-box my-3 p-3 rounded-3" style="background: #F4F7F2;">
+            <partial name="_CartNutrition" model="Model" />
+        </div>
+
+        <div class="d-flex align-items-baseline justify-content-between border-top pt-3 mb-3">
+            <span class="fw-semibold text-secondary">Tạm tính</span>
+            <span class="h4 fw-bold mb-0" style="color: #B4390F;">0đ</span>
+        </div>
+
+        <button type="button" class="btn btn-main-green w-100 disabled" aria-disabled="true">
+            Xem giỏ và đặt hàng
+        </button>
+    }
 </aside>

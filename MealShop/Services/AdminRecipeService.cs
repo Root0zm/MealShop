@@ -75,9 +75,9 @@ public class AdminRecipeService
             await _context.SaveChangesAsync();
             return (true, $"Đã thêm thành phần '{component.NameVi}' ({grams:F1} g) vào công thức.");
         }
-        catch (DbUpdateException ex)
+        catch (DbUpdateException)
         {
-            return (false, $"Lỗi từ cơ sở dữ liệu khi thêm thành phần: {ex.InnerException?.Message ?? ex.Message}");
+            return (false, "Không thể thêm thành phần. Vui lòng kiểm tra món, nguyên liệu và khối lượng rồi thử lại.");
         }
     }
 
@@ -105,9 +105,9 @@ public class AdminRecipeService
             await _context.SaveChangesAsync();
             return (true, $"Đã cập nhật khối lượng '{recipe.Component.NameVi}' thành {grams:F1} g.");
         }
-        catch (DbUpdateException ex)
+        catch (DbUpdateException)
         {
-            return (false, $"Lỗi khi cập nhật thành phần: {ex.InnerException?.Message ?? ex.Message}");
+            return (false, "Không thể cập nhật thành phần. Vui lòng kiểm tra khối lượng rồi thử lại.");
         }
     }
 
@@ -169,9 +169,9 @@ public class AdminRecipeService
             await _context.SaveChangesAsync();
             return (true, $"Đã thêm khẩu phần '{trimmedName}' thành công.");
         }
-        catch (DbUpdateException ex)
+        catch (DbUpdateException)
         {
-            return (false, $"Lỗi CSDL khi tạo khẩu phần: {ex.InnerException?.Message ?? ex.Message}");
+            return (false, "Không thể tạo khẩu phần. Vui lòng kiểm tra tên, khối lượng và giá bán rồi thử lại.");
         }
     }
 
@@ -216,15 +216,20 @@ public class AdminRecipeService
             await _context.SaveChangesAsync();
             return (true, $"Cập nhật khẩu phần '{trimmedName}' thành công.");
         }
-        catch (DbUpdateException ex)
+        catch (DbUpdateException)
         {
-            return (false, $"Lỗi CSDL khi cập nhật khẩu phần: {ex.InnerException?.Message ?? ex.Message}");
+            return (false, "Không thể cập nhật khẩu phần. Vui lòng kiểm tra tên, khối lượng và giá bán rồi thử lại.");
         }
     }
 
     // Xoa khau phan
     public async Task<(bool Succeeded, string Message)> DeletePortionAsync(int portionId)
     {
+        if (await _context.OrderItems.AnyAsync(i => i.PortionId == portionId))
+        {
+            return (false, "Khẩu phần này đã có trong đơn hàng nên không thể xóa. Hãy tắt trạng thái bán của khẩu phần.");
+        }
+
         var portion = await _context.Portions.FirstOrDefaultAsync(p => p.Id == portionId);
         if (portion == null)
         {

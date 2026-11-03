@@ -4,12 +4,16 @@
     <div class="side-item-info">
         <div class="side-item-name">@Model.Name</div>
         <div class="side-item-meta">
-            @Model.PortionGrams.ToString("N0") g · @(Model.HasCompleteNutrition ? $"{Model.Kcal} kcal" : "chưa đủ dữ liệu") · <span class="fw-bold" style="color: #B4390F;">@Model.Price.ToString("N0") ₫</span>
+            @Model.PortionGrams.ToString("N0") g · @(Model.HasCompleteNutrition ? $"{Model.Kcal} kcal" : "chưa đủ dữ liệu") · <span class="fw-bold" style="color: #B4390F;">@Model.Price.ToVnd()</span>
         </div>
     </div>
-    <button type="button" class="btn-side-add" data-portion-id="@Model.PortionId" aria-label="Thêm @Model.Name vào bữa">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2F7D4F" stroke-width="2.6" stroke-linecap="round" aria-hidden="true">
-            <path d="M12 5v14M5 12h14"></path>
-        </svg>
-    </button>
+    <form asp-controller="Cart" asp-action="Add" method="post" class="d-inline m-0">
+        <input type="hidden" name="portionId" value="@Model.PortionId" />
+        <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+        <button type="submit" class="btn-side-add" aria-label="Thêm @Model.Name vào bữa">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2F7D4F" stroke-width="2.6" stroke-linecap="round" aria-hidden="true">
+                <path d="M12 5v14M5 12h14"></path>
+            </svg>
+        </button>
+    </form>
 </div>

@@ -22,7 +22,7 @@
 {
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         @TempData["SuccessMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng thông báo"></button>
     </div>
 }
 
@@ -30,7 +30,7 @@
 {
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
         @TempData["ErrorMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng thông báo"></button>
     </div>
 }
 
@@ -214,7 +214,7 @@
                                         <span class="fw-semibold">@r.Component?.NameVi</span>
                                         @if (r.Component?.IsSuspect == true)
                                         {
-                                            <span class="badge bg-warning text-dark ms-1">⚠️ @r.Component.EnergyFlag</span>
+                                            <span class="badge bg-warning text-dark ms-1">Cần kiểm tra</span>
                                         }
                                     </td>
                                     <td class="text-end">
@@ -222,7 +222,7 @@
                                             <input type="hidden" name="dishId" value="@Model.Id" />
                                             <input type="hidden" name="componentId" value="@r.ComponentId" />
                                             <input type="number" name="grams" value="@r.Grams" step="0.1" min="0.1" class="form-control form-control-sm text-end" style="width: 80px;" required />
-                                            <button type="submit" class="btn btn-outline-primary btn-sm" title="Lưu khối lượng">💾</button>
+                                            <button type="submit" class="btn btn-outline-primary btn-sm" title="Lưu khối lượng">Lưu</button>
                                         </form>
                                     </td>
                                     <td class="text-end text-muted small">@pct.ToString("N1")%</td>
@@ -253,15 +253,14 @@
                     <form asp-action="AddComponent" method="post" class="row g-2 align-items-end">
                         <input type="hidden" name="dishId" value="@Model.Id" />
                         <div class="col-md-7">
-                            <label class="form-label small fw-semibold">Chọn nguyên liệu / món ăn (tìm kiếm):</label>
-                            <input list="usableComponentsList" id="componentInput" class="form-control form-control-sm" placeholder="Gõ tên để tìm..." required />
-                            <datalist id="usableComponentsList">
+                            <label class="form-label small fw-semibold">Chọn nguyên liệu / món ăn:</label>
+                            <select name="componentId" class="form-select form-select-sm" required>
+                                <option value="">-- Chọn nguyên liệu / món ăn --</option>
                                 @foreach (var c in usableComponents)
                                 {
-                                    <option data-id="@c.Id" value="@c.NameVi (Mã: @c.Id)"></option>
+                                    <option value="@c.Id">@c.NameVi (Mã: @c.Id)</option>
                                 }
-                            </datalist>
-                            <input type="hidden" name="componentId" id="selectedComponentId" required />
+                            </select>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label small fw-semibold">Khối lượng (gram):</label>

@@ -1,0 +1,136 @@
+@model MealShop.ViewModels.OrderTrackViewModel
+
+@{
+    ViewData["Title"] = "Tra cứu đơn hàng";
+}
+
+<div class="container py-4" style="max-width: 800px;">
+    <div class="text-center mb-4">
+        <h1 class="h3 fw-bold mb-1" style="color: #1A3026;">Tra cứu đơn hàng</h1>
+        <p class="text-muted mb-0">Nhập mã đơn hàng 12 ký tự và số điện thoại đã dùng khi đặt hàng</p>
+    </div>
+
+    <!-- Form tra cuu -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4" style="background-color: #FAFCFA;">
+        <form asp-action="Track" method="post">
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger rounded-3 mb-3 small" role="alert">
+                    <span class="fw-bold">✕ </span>@Model.ErrorMessage
+                </div>
+            }
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="PublicCode" class="form-label fw-semibold small">Mã đơn hàng (12 ký tự)</label>
+                    <input asp-for="PublicCode" class="form-control rounded-3 text-uppercase font-monospace" placeholder="Ví dụ: 3A7K9M2P4X8Q" maxlength="12" required />
+                    <span asp-validation-for="PublicCode" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="PhoneNumber" class="form-label fw-semibold small">Số điện thoại</label>
+                    <input asp-for="PhoneNumber" class="form-control rounded-3" placeholder="Ví dụ: 0912345678" required />
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
+                <div class="col-12 text-end">
+                    <button type="submit" class="btn text-white px-4 py-2 rounded-pill fw-semibold" style="background-color: #2F7D4F;">
+                        Tra cứu đơn
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Ket qua tra cuu khi khop thong tin -->
+    @if (Model.Order != null)
+    {
+        var order = Model.Order;
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+            <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <span class="text-muted small">Đơn hàng:</span>
+                    <strong class="font-monospace fs-5 text-dark ms-1">@order.PublicCode</strong>
+                    <span class="badge ms-2 @(order.Status == "Completed" ? "bg-success" : order.Status == "Cancelled" ? "bg-danger" : "bg-warning text-dark")">
+                        @OrderStatus.Label(order.Status)
+                    </span>
+                </div>
+                <div class="small text-muted">
+                    Thời gian đặt: @order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="small text-muted">Người nhận:</div>
+                        <div class="fw-semibold">@order.CustomerName</div>
+                        <div class="small text-muted mt-1">Số điện thoại:</div>
+                        <div class="fw-semibold">@order.PhoneNumber</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="small text-muted">Địa chỉ giao hàng:</div>
+                        <div>@order.ShippingAddress</div>
+                        @if (!string.IsNullOrEmpty(order.Note))
+                        {
+                            <div class="small text-muted mt-1">Ghi chú:</div>
+                            <div class="fst-italic text-muted small">@order.Note</div>
+                        }
+                    </div>
+                </div>
+
+                <h6 class="fw-bold mb-3 border-bottom pb-2">Danh sách món</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle">
+                        <thead class="text-muted small">
+                            <tr>
+                                <th>Món ăn</th>
+                                <th>Khẩu phần</th>
+                                <th class="text-center">Số lượng</th>
+                                <th class="text-end">Đơn giá</th>
+                                <th class="text-end">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in order.Items)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">@item.FoodName</div>
+                                        <div class="text-muted" style="font-size: 11px;">
+                                            @(item.Kcal.HasValue ? $"{item.Kcal:N0} kcal" : "chưa đủ dữ liệu")
+                                        </div>
+                                    </td>
+                                    <td>@item.PortionName (@item.PortionGrams.ToString("N0") g)</td>
+                                    <td class="text-center fw-bold">@item.Quantity</td>
+                                    <td class="text-end">@item.UnitPrice.ToVnd()</td>
+                                    <td class="text-end fw-semibold">@item.LinePrice.ToVnd()</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" class="text-end fw-bold">Tổng thanh toán:</td>
+                                <td class="text-end fw-bold fs-5" style="color: #B4390F;">@order.TotalAmount.ToVnd()</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-end small text-muted">Tổng năng lượng:</td>
+                                <td class="text-end small fw-semibold" style="color: #2F7D4F;">@(order.TotalKcal.HasValue ? $"{order.TotalKcal:N0} kcal" : "Chưa đủ dữ liệu")</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Nut Dat lai cho khach vang lai da xac minh -->
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                    <span class="small text-muted">Muốn ăn lại bữa này? Hệ thống sẽ tạo lại giỏ hàng theo giá hiện tại.</span>
+                    <form asp-action="Reorder" asp-route-id="@order.Id" method="post" class="m-0">
+                        <input type="hidden" name="publicCode" value="@order.PublicCode" />
+                        <input type="hidden" name="phoneNumber" value="@order.PhoneNumber" />
+                        <button type="submit" class="btn btn-outline-success rounded-pill px-4">
+                            Đặt lại đơn này
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>

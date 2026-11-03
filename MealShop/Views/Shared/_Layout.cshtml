@@ -33,6 +33,12 @@
                 <nav class="d-flex align-items-center flex-wrap gap-2">
                     <a class="nav-custom-link" asp-area="" asp-controller="Menu" asp-action="Index">Thực đơn</a>
                     <a class="nav-custom-link" asp-area="" asp-controller="Foods" asp-action="Index">Tra cứu dinh dưỡng</a>
+                    <a class="nav-custom-link" asp-area="" asp-controller="Cart" asp-action="Index">Giỏ hàng</a>
+                    <a class="nav-custom-link" asp-area="" asp-controller="Orders" asp-action="Track">Tra cứu đơn</a>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a class="nav-custom-link" asp-area="" asp-controller="Orders" asp-action="Index">Đơn của tôi</a>
+                    }
 
                     @if (User.IsInRole("Admin"))
                     {
@@ -42,7 +48,7 @@
                     <div class="d-flex align-items-center ms-lg-2 ps-lg-2 border-start">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <span class="text-dark fw-semibold small me-2">👤 @User.Identity.Name</span>
+                            <span class="text-dark fw-semibold small me-2">@User.Identity.Name</span>
                             <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                                 <button type="submit" class="btn btn-outline-secondary btn-sm" style="height: 38px;">Đăng xuất</button>
                             </form>
@@ -59,6 +65,7 @@
     </header>
 
     <div class="container-xl">
+        <partial name="_Alerts" />
         <main role="main" class="pb-5">
             @RenderBody()
         </main>
@@ -66,7 +73,7 @@
 
     <footer class="footer border-top text-muted py-4 mt-5 bg-white">
         <div class="container-xl text-center small">
-            &copy; 2026 - MealShop - Dinh dưỡng chuẩn hóa từ công thức thực phẩm Việt Nam
+            &copy; 2026 - MealShop - Thông tin dinh dưỡng tham khảo từ bảng thành phần thực phẩm
         </div>
     </footer>
 

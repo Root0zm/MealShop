@@ -13,6 +13,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Food> Foods => Set<Food>();
     public DbSet<Recipe> Recipes => Set<Recipe>();
     public DbSet<Portion> Portions => Set<Portion>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderItem> OrderItems => Set<OrderItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -139,6 +141,61 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
                 .WithMany(f => f.Portions)
                 .HasForeignKey(p => p.FoodId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Cau hinh bang Orders
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.ToTable("Orders");
+
+            entity.HasKey(o => o.Id);
+            entity.Property(o => o.PublicCode).HasMaxLength(12).IsRequired();
+            entity.HasIndex(o => o.PublicCode).IsUnique();
+
+            entity.Property(o => o.CustomerName).HasMaxLength(100).IsRequired();
+            entity.Property(o => o.PhoneNumber).HasMaxLength(20).IsRequired();
+            entity.Property(o => o.ShippingAddress).HasMaxLength(250).IsRequired();
+            entity.Property(o => o.Note).HasMaxLength(500);
+            entity.Property(o => o.Status).HasMaxLength(50).IsRequired().HasDefaultValue("Pending");
+
+            entity.Property(o => o.TotalAmount).HasPrecision(12, 0).IsRequired();
+            entity.Property(o => o.TotalKcal).HasPrecision(8, 2);
+            entity.Property(o => o.TotalProtein).HasPrecision(8, 2);
+            entity.Property(o => o.TotalFat).HasPrecision(8, 2);
+            entity.Property(o => o.TotalCarb).HasPrecision(8, 2);
+
+            entity.HasOne(o => o.User)
+                .WithMany()
+                .HasForeignKey(o => o.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasMany(o => o.Items)
+                .WithOne(i => i.Order)
+                .HasForeignKey(i => i.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Cau hinh bang OrderItems
+        modelBuilder.Entity<OrderItem>(entity =>
+        {
+            entity.ToTable("OrderItems");
+
+            entity.HasKey(i => i.Id);
+            entity.Property(i => i.FoodName).HasMaxLength(200).IsRequired();
+            entity.Property(i => i.PortionName).HasMaxLength(100).IsRequired();
+            entity.Property(i => i.PortionGrams).HasPrecision(8, 2).IsRequired();
+            entity.Property(i => i.UnitPrice).HasPrecision(12, 0).IsRequired();
+            entity.Property(i => i.LinePrice).HasPrecision(12, 0).IsRequired();
+
+            entity.Property(i => i.Kcal).HasPrecision(8, 2);
+            entity.Property(i => i.Protein).HasPrecision(8, 2);
+            entity.Property(i => i.Fat).HasPrecision(8, 2);
+            entity.Property(i => i.Carb).HasPrecision(8, 2);
+
+            entity.HasOne(i => i.Portion)
+                .WithMany()
+                .HasForeignKey(i => i.PortionId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 

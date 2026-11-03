@@ -1,0 +1,120 @@
+@model MealShop.ViewModels.CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Thanh toán & Đặt món";
+}
+
+<div class="container py-4" style="max-width: 960px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1" style="color: #1A3026;">Thông tin nhận món</h1>
+            <p class="text-muted mb-0">Hoàn tất thông tin giao hàng để nhà bếp chuẩn bị bữa ăn</p>
+        </div>
+        <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            ← Quay lại giỏ hàng
+        </a>
+    </div>
+
+    @if (!User.Identity?.IsAuthenticated == true)
+    {
+        <div class="alert alert-info rounded-4 border-0 mb-4 p-3 d-flex align-items-center justify-content-between" style="background-color: #EAF4EE; color: #1A3026;">
+            <div class="d-flex align-items-center gap-2">
+                
+                <div>
+                    <strong>Đặt hàng nhanh không cần tài khoản!</strong>
+                    <div class="small text-muted">Sau khi đặt, hệ thống sẽ cấp cho bạn một <strong>Mã đơn hàng 12 ký tự</strong> để tra cứu tiện lợi bất cứ lúc nào.</div>
+                </div>
+            </div>
+            <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="/Orders/Checkout" class="btn btn-sm btn-outline-success rounded-pill px-3 text-nowrap">
+                Đăng nhập nếu có tài khoản
+            </a>
+        </div>
+    }
+
+    @if (Model.Cart?.Warnings.Count > 0)
+    {
+        <div class="alert alert-warning" role="alert">
+            @foreach (var warning in Model.Cart.Warnings)
+            {
+                <p class="mb-0">@warning</p>
+            }
+        </div>
+    }
+    <form asp-action="Checkout" method="post">
+        <div class="row g-4">
+            <!-- Form thong tin -->
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <h5 class="fw-bold mb-3" style="color: #1A3026;">Người nhận hàng</h5>
+                    <div asp-validation-summary="ModelOnly" class="text-danger small" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="CustomerName" class="form-label fw-semibold">Họ và tên <span class="text-danger">*</span></label>
+                        <input asp-for="CustomerName" class="form-control rounded-3" placeholder="Ví dụ: Nguyễn Văn A" />
+                        <span asp-validation-for="CustomerName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PhoneNumber" class="form-label fw-semibold">Số điện thoại <span class="text-danger">*</span></label>
+                        <input asp-for="PhoneNumber" class="form-control rounded-3" placeholder="Ví dụ: 0912345678" />
+                        <div class="form-text small">Dùng để xác nhận đơn và dùng để tra cứu lại đơn sau này.</div>
+                        <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ShippingAddress" class="form-label fw-semibold">Địa chỉ giao hàng <span class="text-danger">*</span></label>
+                        <textarea asp-for="ShippingAddress" class="form-control rounded-3" rows="3" placeholder="Số nhà, tên đường, phường/xã, quận/huyện..."></textarea>
+                        <span asp-validation-for="ShippingAddress" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Note" class="form-label fw-semibold">Ghi chú cho nhà bếp (không bắt buộc)</label>
+                        <textarea asp-for="Note" class="form-control rounded-3" rows="2" placeholder="Ví dụ: Ít cay, không hành, giao giờ trưa..."></textarea>
+                        <span asp-validation-for="Note" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tom tat don hang -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 20px;">
+                    <h5 class="fw-bold mb-3" style="color: #1A3026;">Tóm tắt bữa ăn</h5>
+
+                    @if (Model.Cart != null && Model.Cart.Items.Count > 0)
+                    {
+                        <ul class="list-unstyled mb-3 border-bottom pb-3">
+                            @foreach (var item in Model.Cart.Items)
+                            {
+                                <li class="d-flex justify-content-between align-items-center py-1 small">
+                                    <div>
+                                        <span class="fw-semibold">@item.FoodName</span>
+                                        <div class="text-muted" style="font-size: 12px;">@item.PortionName × @item.Quantity</div>
+                                    </div>
+                                    <div class="fw-bold" style="color: #B4390F;">@item.LinePrice.ToVnd()</div>
+                                </li>
+                            }
+                        </ul>
+
+                        <div class="mb-3"><partial name="_CartNutrition" model="Model.Cart" /></div>
+
+                        <div class="d-flex justify-content-between align-items-baseline mb-3">
+                            <span class="fw-bold fs-6">Tổng thanh toán:</span>
+                            <span class="fs-4 fw-bold" style="color: #B4390F;">@Model.Cart.TotalAmount.ToVnd()</span>
+                        </div>
+                    }
+
+                    <button type="submit" class="btn text-white w-100 py-2 rounded-pill fw-bold" style="background-color: #2F7D4F;">
+                        Xác nhận đặt hàng
+                    </button>
+                    <div class="text-center text-muted small mt-2">
+                        Thanh toán tiền mặt (COD) khi nhận món
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

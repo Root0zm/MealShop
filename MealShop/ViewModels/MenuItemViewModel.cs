@@ -24,6 +24,9 @@ public class MenuItemViewModel
     public int ShareFat { get; set; }
     public int ShareCarb { get; set; }
 
+    // Mon co cong thuc thanh phan
+    public bool HasRecipes { get; set; }
+
     // Cac co nhan dien muc tieu
     public bool IsLowFat => Fat.HasValue && Fat.Value <= 5m;
     public bool IsUnder400Kcal => Kcal.HasValue && Kcal.Value <= 400m;

@@ -56,7 +56,7 @@
             {
                 <div class="d-flex flex-wrap align-items-baseline justify-content-between gap-2 mb-3">
                     <h2 class="h4 fw-bold mb-0">Món chính</h2>
-                    <span class="text-secondary small">35.000 ₫ mỗi suất · năng lượng tính theo cả suất</span>
+                    <span class="text-secondary small">Dinh dưỡng tham chiếu theo khẩu phần</span>
                 </div>
 
                 @if (Model.MainDishes.Count > 0)
@@ -80,7 +80,7 @@
                     <div class="sides-section mt-4 pt-3 border-top">
                         <div class="d-flex flex-wrap align-items-baseline justify-content-between gap-2 mb-3">
                             <h2 class="h5 fw-bold mb-0">Thêm món kèm</h2>
-                            <span class="text-secondary small">5.000 ₫ mỗi phần nhỏ</span>
+                            <span class="text-secondary small">Khẩu phần nhỏ để ăn kèm</span>
                         </div>
                         <div class="side-grid">
                             @foreach (var side in Model.SideItems)
@@ -118,7 +118,7 @@
 
         <!-- Cot phai: Gio Bua cua ban (MiniCart) -->
         <div class="col-lg-4">
-            <div class="sticky-top" style="top: 24px; z-index: 10;">
+            <div id="miniCartContainer" class="sticky-top" style="top: 24px; z-index: 10;">
                 @await Component.InvokeAsync("MiniCart")
             </div>
         </div>

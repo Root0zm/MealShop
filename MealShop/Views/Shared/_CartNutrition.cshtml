@@ -1,0 +1,23 @@
+@model MealShop.ViewModels.CartViewModel
+
+@if (!Model.HasCompleteNutrition)
+{
+    <p class="small text-muted mb-0" role="status">Chưa đủ dữ liệu dinh dưỡng cho cả bữa. Một số món chưa có đủ số liệu.</p>
+}
+else
+{
+    <div class="d-flex align-items-baseline justify-content-between gap-2">
+        <span class="small text-secondary">Năng lượng cả bữa</span>
+        <strong class="fs-4">@Model.TotalKcal.ToString("N0") kcal</strong>
+    </div>
+    @if (Model.TotalKcal > 0)
+    {
+        <div class="energy-bar my-2" role="img" aria-label="Tỉ lệ năng lượng: đạm @Model.ShareProtein%, béo @Model.ShareFat%, bột đường @Model.ShareCarb%">
+            <div style="width: @(Model.ShareProtein)%; background: var(--protein-color);"></div>
+            <div style="width: @(Model.ShareFat)%; background: var(--fat-color);"></div>
+            <div style="width: @(Model.ShareCarb)%; background: var(--carb-color);"></div>
+        </div>
+        <div class="small text-secondary">Đạm @Model.TotalProtein.ToString("N1") g · Béo @Model.TotalFat.ToString("N1") g · Bột đường @Model.TotalCarb.ToString("N1") g</div>
+    }
+    <p class="small text-muted mt-2 mb-0">Khoảng @Model.PercentOf2000Kcal% mức tham khảo @Model.ReferenceKcal.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) kcal/ngày.</p>
+}

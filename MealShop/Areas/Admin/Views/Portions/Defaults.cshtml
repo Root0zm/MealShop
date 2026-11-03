@@ -25,7 +25,7 @@
 {
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         @TempData["SuccessMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng thông báo"></button>
     </div>
 }
 
@@ -85,7 +85,7 @@
                         <td>@tab.CategoryVi</td>
                         <td><span class="badge bg-light text-dark border">@tab.PortionName</span></td>
                         <td class="text-end">@tab.Grams.ToString("N0") g</td>
-                        <td class="text-end fw-semibold text-danger">@tab.Price.ToString("N0") ₫</td>
+                        <td class="text-end fw-semibold text-danger">@tab.Price.ToVnd()</td>
                         <td class="text-center">
                             @if (tab.ToCreateCount > 0)
                             {
@@ -101,7 +101,7 @@
                             @if (tab.SuspectCount > 0)
                             {
                                 <span class="badge bg-warning text-dark" title="@string.Join(", ", tab.SuspectFoodNames)">
-                                    ⚠️ @tab.SuspectCount
+                                    @tab.SuspectCount
                                 </span>
                             }
                             else
@@ -120,7 +120,7 @@
 {
     <div class="card shadow-sm border-warning mb-4">
         <div class="card-header bg-warning bg-opacity-25 fw-bold">
-            ⚠️ Danh sách món nghi vấn chất lượng bị bỏ qua (không tự tạo khẩu phần bán)
+            Danh sách món nghi vấn chất lượng bị bỏ qua (không tự tạo khẩu phần bán)
         </div>
         <div class="card-body">
             <ul class="mb-0 small text-muted">

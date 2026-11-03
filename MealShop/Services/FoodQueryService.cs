@@ -116,6 +116,7 @@ public class FoodQueryService
     {
         var food = await _context.Foods
             .AsNoTracking()
+            .Include(f => f.Portions)
             .Include(f => f.Recipes)
                 .ThenInclude(r => r.Component)
             .FirstOrDefaultAsync(f => f.Id == id);
@@ -150,6 +151,10 @@ public class FoodQueryService
             NameVi = food.NameVi,
             NameEn = food.NameEn,
             CategoryVi = food.CategoryVi,
+            Portions = food.IsSellable
+                ? food.Portions.Where(p => p.IsActive && p.Price > 0).OrderBy(p => p.Price)
+                    .Select(p => new FoodPortionViewModel { Id = p.Id, Name = p.Name, Grams = p.Grams, Price = p.Price }).ToList()
+                : new List<FoodPortionViewModel>(),
             Kcal = food.Kcal,
             Water = food.Water,
             Protein = food.Protein,

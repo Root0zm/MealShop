@@ -109,7 +109,7 @@ public class MenuService
             string? desc = null;
             if (food.Recipes.Count > 0)
             {
-                desc = string.Join(", ", food.Recipes.Select(r => r.Component?.NameVi ?? "").Where(s => !string.IsNullOrEmpty(s)));
+                desc = string.Join(", ", food.Recipes.OrderByDescending(r => r.Grams).Where(r => r.Component != null && r.ComponentId != 14057).Take(3).Select(r => r.Component.NameVi));
             }
             if (string.IsNullOrWhiteSpace(desc))
             {
@@ -136,6 +136,7 @@ public class MenuService
                 ShareProtein = sp,
                 ShareFat = sf,
                 ShareCarb = sc,
+                HasRecipes = food.Recipes.Count > 0,
                 TintColor = palette.Tint,
                 InkColor = palette.Ink
             };
@@ -169,8 +170,18 @@ public class MenuService
             ? (availableTabs.FirstOrDefault() ?? "Món chính")
             : tab;
 
-        var currentTabItems = allItems.Where(i => i.Tab == activeTab).ToList();
-        var mainDishes = allItems.Where(i => i.Tab == "Món chính").ToList();
+        // Uu tien cac mon co cong thuc len dau danh sach de kiem tra
+        var currentTabItems = allItems
+            .Where(i => i.Tab == activeTab)
+            .OrderByDescending(i => i.HasRecipes)
+            .ThenBy(i => i.Name)
+            .ToList();
+
+        var mainDishes = allItems
+            .Where(i => i.Tab == "Món chính")
+            .OrderByDescending(i => i.HasRecipes)
+            .ThenBy(i => i.Name)
+            .ToList();
 
         // Mon kem: lay tu cac tab con lai (Thit, Hai san, Rau cu, Trung, Dau hat)
         var sideItems = allItems

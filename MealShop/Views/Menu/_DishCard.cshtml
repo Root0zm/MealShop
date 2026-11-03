@@ -14,7 +14,11 @@
     </div>
     <div class="dish-card-body">
         <div>
-            <h3 class="dish-name">@Model.Name</h3>
+            <h3 class="dish-name">
+                <a asp-controller="Foods" asp-action="Details" asp-route-id="@Model.FoodId" class="text-dark text-decoration-none">
+                    @Model.Name
+                </a>
+            </h3>
             <p class="dish-desc">@Model.Description</p>
         </div>
 
@@ -46,13 +50,17 @@
         }
 
         <div class="dish-footer">
-            <span class="dish-price">@Model.Price.ToString("N0") ₫</span>
-            <button type="button" class="btn-dish-add" data-portion-id="@Model.PortionId" aria-label="Thêm @Model.Name vào bữa">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" aria-hidden="true">
-                    <path d="M12 5v14M5 12h14"></path>
-                </svg>
-                Thêm
-            </button>
+            <span class="dish-price">@Model.Price.ToVnd()</span>
+            <form asp-controller="Cart" asp-action="Add" method="post" class="d-inline">
+                <input type="hidden" name="portionId" value="@Model.PortionId" />
+                <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                <button type="submit" class="btn-dish-add" aria-label="Thêm @Model.Name vào bữa">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" aria-hidden="true">
+                        <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    Thêm
+                </button>
+            </form>
         </div>
     </div>
 </article>

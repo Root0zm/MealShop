@@ -1,12 +1,20 @@
 using Microsoft.AspNetCore.Mvc;
+using MealShop.Services;
 
 namespace MealShop.ViewComponents;
 
 public class MiniCartViewComponent : ViewComponent
 {
-    public IViewComponentResult Invoke()
+    private readonly CartService _cartService;
+
+    public MiniCartViewComponent(CartService cartService)
     {
-        // O Phan C, MiniCart hien thi trang thai rong; se noi du lieu Session that o Phan D
-        return View();
+        _cartService = cartService;
+    }
+
+    public async Task<IViewComponentResult> InvokeAsync()
+    {
+        var cart = await _cartService.GetCartAsync();
+        return View(cart);
     }
 }

@@ -1,5 +1,6 @@
 using MealShop.Models;
 using MealShop.ViewModels;
+using MealShop.Extensions;
 
 namespace MealShop.Services;
 
@@ -45,10 +46,7 @@ public class NutritionCalculatorService
             // Kiem tra neu thanh phan co co IsSuspect
             if (component.IsSuspect)
             {
-                var note = !string.IsNullOrWhiteSpace(component.QaNote)
-                    ? component.QaNote
-                    : $"Cờ năng lượng {component.EnergyFlag ?? "Nghi vấn"}";
-                suspectWarnings.Add($"Thành phần '{component.NameVi}' (#{component.Id}) bị gắn cờ: {note}.");
+                suspectWarnings.Add($"Thành phần '{component.NameVi}': {DisplayText.QualityNote(component.QaNote)}.");
             }
         }
 

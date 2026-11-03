@@ -1,5 +1,7 @@
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using MealShop.Data;
 using MealShop.Models;
@@ -11,8 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Cau hinh MenuOptions tu appsettings.json
+// Cau hinh Options tu appsettings.json
 builder.Services.Configure<MenuOptions>(builder.Configuration.GetSection("Menu"));
+builder.Services.Configure<NutritionOptions>(builder.Configuration.GetSection("Nutrition"));
+builder.Services.Configure<RateLimitingOptions>(builder.Configuration.GetSection("RateLimiting"));
 
 // Cau hinh ASP.NET Core Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -42,6 +46,67 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Account/AccessDenied";
 });
 
+// Dang ky Session va HttpContextAccessor
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(2);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+// Cau hinh Rate Limiting (gioi han tan suat chong spam theo IP)
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.ContentType = "text/html; charset=utf-8";
+        await context.HttpContext.Response.WriteAsync(
+            "<div style='font-family:sans-serif;text-align:center;padding:50px;'>" +
+            "<h2>Yêu cầu quá nhanh (429)</h2>" +
+            "<p>Bạn đã gửi yêu cầu quá thường xuyên. Vui lòng chờ một phút rồi thử lại.</p>" +
+            "<a href='/' style='color:#2F7D4F;text-decoration:none;font-weight:bold;'>← Quay về trang chủ</a>" +
+            "</div>", token);
+    };
+
+    var rateLimitConfig = builder.Configuration.GetSection("RateLimiting").Get<RateLimitingOptions>() ?? new RateLimitingOptions();
+
+    options.AddPolicy("track-limit", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = rateLimitConfig.TrackLimit,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            }));
+
+    options.AddPolicy("checkout-limit", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = rateLimitConfig.CheckoutLimit,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            }));
+
+    options.AddPolicy("login-limit", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = rateLimitConfig.LoginLimit,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            }));
+});
+
 // Dang ky cac dich vu nghiep vu
 builder.Services.AddScoped<NutritionCalculatorService>();
 builder.Services.AddScoped<FoodQueryService>();
@@ -49,6 +114,8 @@ builder.Services.AddScoped<AdminFoodService>();
 builder.Services.AddScoped<AdminRecipeService>();
 builder.Services.AddScoped<DefaultPortionService>();
 builder.Services.AddScoped<MenuService>();
+builder.Services.AddScoped<CartService>();
+builder.Services.AddScoped<OrderService>();
 
 // Add services to the container voi tu dong kiem tra Antiforgery Token cho POST
 builder.Services.AddControllersWithViews(options =>
@@ -73,6 +140,9 @@ if (app.Environment.IsDevelopment() || args.Contains("--seed-only"))
         var defaultPortionService = scope.ServiceProvider.GetRequiredService<DefaultPortionService>();
         await defaultPortionService.ApplyAsync();
     }
+
+    // Nạp dữ liệu demo nếu được cấu hình Seed:Demo = true
+    await DemoSeeder.SeedAsync(scope.ServiceProvider, app.Configuration);
 }
 
 // Ho tro chay lenh seed rieng biet ma khong khoi dong web server
@@ -94,8 +164,20 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseSession();
+app.UseRateLimiter();
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Endpoint kiem tra trang thai he thong (Health check)
+app.MapGet("/health", async (AppDbContext context) =>
+{
+    var canConnect = await context.Database.CanConnectAsync();
+    return canConnect
+        ? Results.Ok(new { status = "Healthy" })
+        : Results.Json(new { status = "Unhealthy" }, statusCode: StatusCodes.Status503ServiceUnavailable);
+}).AllowAnonymous();
 
 // Route cho Areas (Admin)
 app.MapControllerRoute(

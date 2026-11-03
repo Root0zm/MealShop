@@ -5,8 +5,8 @@
 }
 
 <div class="mb-3">
-    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
-        &larr; Quay lại danh sách
+    <a asp-controller="Menu" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        &larr; Quay lại thực đơn
     </a>
 </div>
 
@@ -24,7 +24,7 @@
             <div class="d-flex gap-2 align-items-center">
                 @if (Model.Kind == "dish")
                 {
-                    <span class="badge bg-primary fs-6">Món ăn</span>
+                    <span class="badge bg-light text-dark border fs-6">Món ăn</span>
                 }
                 else
                 {
@@ -51,20 +51,38 @@
                 <strong>Danh mục:</strong> @(Model.CategoryVi ?? "Chưa phân loại")
             </div>
             <div class="col-sm-4">
-                <strong>Cờ năng lượng:</strong> @(Model.EnergyFlag ?? "Bình thường")
+                <strong>Cờ năng lượng:</strong> @(Model.IsSuspect ? "Cần kiểm tra" : "Không có cảnh báo")
             </div>
         </div>
     </div>
 </div>
 
-<!-- Canh bao du lieu nghi van (IsSuspect) -->
+@if (Model.Portions.Count > 0)
+{
+    <form asp-controller="Cart" asp-action="Add" method="post" class="d-flex flex-wrap align-items-end gap-2 mb-4">
+        <div>
+            <label for="portionId" class="form-label">Chọn khẩu phần</label>
+            <select id="portionId" name="portionId" class="form-select">
+                @foreach (var portion in Model.Portions)
+                {
+                    <option value="@portion.Id">@portion.Name · @portion.Grams.ToString("N0") g · @portion.Price.ToVnd()</option>
+                }
+            </select>
+        </div>
+        <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+        <button type="submit" class="btn btn-success">Thêm vào bữa</button>
+        <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-secondary">Xem giỏ hàng</a>
+    </form>
+}
+<p class="small text-muted">Dinh dưỡng theo khẩu phần trên thực đơn dùng số liệu tham chiếu. Công thức bên dưới là bản ước lượng để đối soát, chưa tính hao hụt khi chế biến.</p>
+<!-- Canh bao du lieu -->
 @if (Model.IsSuspect)
 {
     <div class="alert alert-danger d-flex align-items-center shadow-sm" role="alert">
-        <div class="me-2 fs-4">⚠️</div>
+
         <div>
             <strong>Cảnh báo chất lượng dữ liệu (Nghi vấn):</strong>
-            <span>@(string.IsNullOrEmpty(Model.QaNote) ? "Dữ liệu dinh dưỡng của thực phẩm này có sai lệch hoặc bất thường trong dataset gốc." : Model.QaNote)</span>
+            <span>@DisplayText.QualityNote(Model.QaNote)</span>
         </div>
     </div>
 }
@@ -74,7 +92,7 @@
     <div class="col-lg-6">
         <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-success text-white fw-bold">
-                Dinh dưỡng tham chiếu dataset (trên 100g)
+                Dinh dưỡng tham chiếu (trên 100 g)
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -181,8 +199,8 @@
     <!-- Danh sach cong thuc & So sanh dinh duong -->
     <div class="col-lg-6">
         <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-primary text-white fw-bold d-flex justify-content-between align-items-center">
-                <span>Công thức định lượng (Recipes)</span>
+            <div class="card-header bg-success text-white fw-bold d-flex justify-content-between align-items-center">
+                <span>Công thức ước lượng</span>
                 @if (Model.CalculatedNutrition != null)
                 {
                     <span class="badge bg-light text-primary">
@@ -244,7 +262,7 @@
                     <!-- Bang so sanh tinh toan vs tham chieu -->
                     @if (Model.CalculatedNutrition != null)
                     {
-                        <h6 class="fw-bold text-secondary mb-2">Đối soát dinh dưỡng (trên 100g):</h6>
+                        <h6 class="fw-bold text-secondary mb-2">So sánh dinh dưỡng (trên 100 g):</h6>
                         <div class="table-responsive">
                             <table class="table table-sm table-bordered align-middle text-center mb-0">
                                 <thead class="table-light">

@@ -9,6 +9,7 @@ public class FoodDetailsViewModel
     public string NameVi { get; init; } = string.Empty;
     public string? NameEn { get; init; }
     public string? CategoryVi { get; init; }
+    public IReadOnlyList<FoodPortionViewModel> Portions { get; init; } = Array.Empty<FoodPortionViewModel>();
 
     // Chi so dinh duong tren 100g
     public decimal? Kcal { get; init; }
@@ -38,6 +39,14 @@ public class FoodDetailsViewModel
 
     // Ket qua tinh toan dinh duong tu cong thuc
     public CalculatedNutritionViewModel? CalculatedNutrition { get; init; }
+}
+
+public class FoodPortionViewModel
+{
+    public int Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public decimal Grams { get; init; }
+    public decimal Price { get; init; }
 }
 
 public class RecipeItemViewModel

@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using MealShop.Data;
 using MealShop.Models;
 using MealShop.ViewModels;
@@ -9,10 +11,12 @@ namespace MealShop.Services;
 public class AdminFoodService
 {
     private readonly AppDbContext _context;
+    private readonly ILogger<AdminFoodService> _logger;
 
-    public AdminFoodService(AppDbContext context)
+    public AdminFoodService(AppDbContext context, ILogger<AdminFoodService>? logger = null)
     {
         _context = context;
+        _logger = logger ?? NullLogger<AdminFoodService>.Instance;
     }
 
     // Sinh ma moi cho mon do Admin tao: max(Id hien co, 99_999_999) + 1
@@ -63,6 +67,8 @@ public class AdminFoodService
 
         _context.Foods.Add(food);
         await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Admin da tao mon/nguyen lieu moi: Id={Id}, Name={NameVi}", food.Id, food.NameVi);
         return food;
     }
 
@@ -106,11 +112,17 @@ public class AdminFoodService
         food.IsSuspect = model.IsSuspect;
 
         await _context.SaveChangesAsync();
+        _logger.LogInformation("Admin da cap nhat mon/nguyen lieu: Id={Id}, Name={NameVi}", food.Id, food.NameVi);
     }
 
     // Kiem tra mon an co the xoa hay khong
     public async Task<(bool CanDelete, string Reason)> CanDeleteFoodAsync(int id)
     {
+        if (await _context.OrderItems.AnyAsync(i => i.FoodId == id || i.Portion!.FoodId == id))
+        {
+            return (false, "Món này đã có trong đơn hàng nên không thể xóa. Bạn có thể tắt 'Có thể bán trên menu' để ẩn món.");
+        }
+
         var isUsedAsComponent = await _context.Recipes.AnyAsync(r => r.ComponentId == id);
         if (isUsedAsComponent)
         {
@@ -137,6 +149,7 @@ public class AdminFoodService
 
         _context.Foods.Remove(food);
         await _context.SaveChangesAsync();
+        _logger.LogInformation("Admin da xoa mon/nguyen lieu: Id={Id}", food.Id);
         return (true, string.Empty);
     }
 }

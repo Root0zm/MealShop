@@ -1,0 +1,100 @@
+@model MealShop.ViewModels.OrderDetailsViewModel
+
+@{
+    ViewData["Title"] = $"Đơn hàng #{Model.Order.PublicCode}";
+    var order = Model.Order;
+}
+
+<div class="container py-4" style="max-width: 860px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1" style="color: #1A3026;">Chi tiết đơn hàng</h1>
+            <p class="text-muted mb-0">Mã đơn: <span class="font-monospace fw-bold text-dark">@order.PublicCode</span></p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                ← Quay lại danh sách
+            </a>
+            @if (Model.CanReorder)
+            {
+                <form asp-action="Reorder" asp-route-id="@order.Id" method="post" class="m-0">
+                    <button type="submit" class="btn btn-sm text-white rounded-pill px-3" style="background-color: #2F7D4F;">
+                        Đặt lại bữa này
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+                    <span class="fw-bold" style="color: #1A3026;">Danh sách món ăn (@order.Items.Count món)</span>
+                    <span class="badge @(order.Status == "Completed" ? "bg-success" : order.Status == "Cancelled" ? "bg-danger" : "bg-warning text-dark")">
+                        Trạng thái: @OrderStatus.Label(order.Status)
+                    </span>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        @foreach (var item in order.Items)
+                        {
+                            <li class="list-group-item p-3 d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h6 class="fw-bold mb-1">@item.FoodName</h6>
+                                    <div class="small text-muted">
+                                        @item.PortionName (@item.PortionGrams.ToString("N0") g) · @(item.Kcal.HasValue ? $"{item.Kcal:N0} kcal" : "chưa đủ dữ liệu")
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-bold" style="color: #B4390F;">@item.LinePrice.ToVnd()</div>
+                                    <div class="small text-muted">@item.UnitPrice.ToVnd() × @item.Quantity</div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <h6 class="fw-bold mb-3 border-bottom pb-2">Thông tin giao nhận</h6>
+                <div class="small mb-2">
+                    <span class="text-muted">Người nhận:</span>
+                    <div class="fw-semibold">@order.CustomerName</div>
+                </div>
+                <div class="small mb-2">
+                    <span class="text-muted">Số điện thoại:</span>
+                    <div class="fw-semibold">@order.PhoneNumber</div>
+                </div>
+                <div class="small mb-2">
+                    <span class="text-muted">Địa chỉ:</span>
+                    <div>@order.ShippingAddress</div>
+                </div>
+                @if (!string.IsNullOrEmpty(order.Note))
+                {
+                    <div class="small mb-2">
+                        <span class="text-muted">Ghi chú:</span>
+                        <div class="fst-italic text-muted">@order.Note</div>
+                    </div>
+                }
+                <div class="small">
+                    <span class="text-muted">Thời gian đặt:</span>
+                    <div>@order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
+                </div>
+
+                <hr class="my-3">
+
+                <div class="d-flex justify-content-between align-items-baseline mb-1">
+                    <span class="text-muted small">Năng lượng:</span>
+                    <span class="fw-bold" style="color: #2F7D4F;">@(order.TotalKcal.HasValue ? $"{order.TotalKcal:N0} kcal" : "Chưa đủ dữ liệu")</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-baseline">
+                    <span class="fw-bold">Tổng thanh toán:</span>
+                    <span class="fs-4 fw-bold" style="color: #B4390F;">@order.TotalAmount.ToVnd()</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

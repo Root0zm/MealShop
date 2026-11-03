@@ -1,0 +1,138 @@
+@model MealShop.ViewModels.OrderDetailsViewModel
+
+@{
+    ViewData["Title"] = $"Quản trị đơn #{Model.Order.Id}";
+    var order = Model.Order;
+}
+
+<div class="container-fluid py-3" style="max-width: 1000px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1" style="color: #1A3026;">Quản lý đơn hàng #@order.Id</h1>
+            <p class="text-muted mb-0">
+                Mã công khai: <span class="font-monospace fw-bold text-dark">@order.PublicCode</span>
+                · Đặt lúc: @order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")
+            </p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            ← Quay lại danh sách đơn
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Danh sach mon va tong tien -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-white border-bottom py-3 px-4">
+                    <span class="fw-bold" style="color: #1A3026;">Các món đã đặt (@order.Items.Count món)</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="small text-muted" style="background-color: #FAFCFA;">
+                                <tr>
+                                    <th class="ps-4">Món ăn</th>
+                                    <th>Khẩu phần</th>
+                                    <th class="text-center">Số lượng</th>
+                                    <th class="text-end">Đơn giá</th>
+                                    <th class="text-end pe-4">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in order.Items)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="fw-semibold">@item.FoodName</div>
+                                            <div class="text-muted small" style="font-size: 11px;">
+                                                @(item.Kcal.HasValue ? $"{item.Kcal:N0} kcal" : "chưa đủ dữ liệu")
+                                            </div>
+                                        </td>
+                                        <td>@item.PortionName (@item.PortionGrams.ToString("N0") g)</td>
+                                        <td class="text-center fw-bold">@item.Quantity</td>
+                                        <td class="text-end">@item.UnitPrice.ToVnd()</td>
+                                        <td class="text-end pe-4 fw-semibold">@item.LinePrice.ToVnd()</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot style="background-color: #FAFCFA;">
+                                <tr>
+                                    <td colspan="4" class="text-end fw-bold">Tổng thanh toán:</td>
+                                    <td class="text-end pe-4 fw-bold fs-5" style="color: #B4390F;">@order.TotalAmount.ToVnd()</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end small text-muted">Tổng năng lượng:</td>
+                                    <td class="text-end pe-4 small fw-semibold" style="color: #2F7D4F;">@(order.TotalKcal.HasValue ? $"{order.TotalKcal:N0} kcal" : "Chưa đủ dữ liệu")</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cap nhat trang thai va thong tin khach -->
+        <div class="col-lg-5">
+            <!-- Box cap nhat trang thai -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <h6 class="fw-bold mb-3 border-bottom pb-2">Trạng thái đơn hàng</h6>
+                <div class="mb-3">
+                    <span class="small text-muted">Trạng thái hiện tại:</span>
+                    <span class="badge fs-6 ms-2 @(order.Status == "Completed" ? "bg-success" : order.Status == "Cancelled" ? "bg-danger" : "bg-warning text-dark")">
+                        @OrderStatus.Label(order.Status)
+                    </span>
+                </div>
+
+                @if (OrderStatus.Next(order.Status).Count > 0)
+                {
+                <form asp-action="UpdateStatus" asp-route-id="@order.Id" method="post">
+                    <div class="mb-3">
+                        <label for="statusSelect" class="form-label small fw-semibold">Chuyển sang trạng thái mới:</label>
+                        <select id="statusSelect" name="status" class="form-select rounded-3">
+                            @foreach (var nextStatus in OrderStatus.Next(order.Status))
+                            {
+                                <option value="@nextStatus">@OrderStatus.Label(nextStatus)</option>
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn text-white w-100 rounded-pill fw-semibold" style="background-color: #2F7D4F;">
+                        Cập nhật trạng thái
+                    </button>
+                </form>
+                }
+                else
+                {
+                    <p class="small text-muted mb-0">Đơn hàng đã kết thúc, không thể đổi trạng thái.</p>
+                }
+            </div>
+
+            <!-- Thong tin khach hang -->
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h6 class="fw-bold mb-3 border-bottom pb-2">Thông tin khách nhận</h6>
+                <div class="small mb-2">
+                    <span class="text-muted">Loại khách:</span>
+                    <span class="fw-semibold">@(order.UserId == null ? "Khách vãng lai" : "Người dùng đã đăng ký")</span>
+                </div>
+                <div class="small mb-2">
+                    <span class="text-muted">Họ và tên:</span>
+                    <div class="fw-semibold">@order.CustomerName</div>
+                </div>
+                <div class="small mb-2">
+                    <span class="text-muted">Số điện thoại:</span>
+                    <div class="fw-semibold">@order.PhoneNumber</div>
+                </div>
+                <div class="small mb-2">
+                    <span class="text-muted">Địa chỉ nhận hàng:</span>
+                    <div>@order.ShippingAddress</div>
+                </div>
+                @if (!string.IsNullOrEmpty(order.Note))
+                {
+                    <div class="small mb-2">
+                        <span class="text-muted">Ghi chú của khách:</span>
+                        <div class="fst-italic text-muted">@order.Note</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

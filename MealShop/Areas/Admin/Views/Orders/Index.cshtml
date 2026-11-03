@@ -1,0 +1,79 @@
+@model List<MealShop.Models.Order>
+
+@{
+    ViewData["Title"] = "Quản lý đơn hàng";
+    var currentStatus = (string)ViewBag.CurrentStatus;
+}
+
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1" style="color: #1A3026;">Quản lý đơn hàng</h1>
+            <p class="text-muted mb-0">Theo dõi và cập nhật tiến độ chế biến các đơn hàng trong hệ thống</p>
+        </div>
+        <div class="btn-group">
+            <a asp-action="Index" asp-route-status="All" class="btn btn-sm @(currentStatus == "All" ? "btn-dark" : "btn-outline-secondary")">Tất cả</a>
+            <a asp-action="Index" asp-route-status="Pending" class="btn btn-sm @(currentStatus == "Pending" ? "btn-warning" : "btn-outline-secondary")">Chờ xử lý</a>
+            <a asp-action="Index" asp-route-status="Confirmed" class="btn btn-sm @(currentStatus == "Confirmed" ? "btn-info" : "btn-outline-secondary")">Đã nhận</a>
+            <a asp-action="Index" asp-route-status="Preparing" class="btn btn-sm @(currentStatus == "Preparing" ? "btn-primary" : "btn-outline-secondary")">Đang nấu</a>
+            <a asp-action="Index" asp-route-status="Completed" class="btn btn-sm @(currentStatus == "Completed" ? "btn-success" : "btn-outline-secondary")">Hoàn thành</a>
+            <a asp-action="Index" asp-route-status="Cancelled" class="btn btn-sm @(currentStatus == "Cancelled" ? "btn-danger" : "btn-outline-secondary")">Đã hủy</a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background-color: #F4F7F2;">
+                    <tr class="small text-muted">
+                        <th class="ps-4">ID</th>
+                        <th>Mã đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Số điện thoại</th>
+                        <th>Địa chỉ</th>
+                        <th>Thời gian</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end pe-4">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center py-4 text-muted">Không có đơn hàng nào phù hợp với bộ lọc.</td>
+                        </tr>
+                    }
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                            <td class="ps-4 text-muted small">#@order.Id</td>
+                            <td>
+                                <span class="font-monospace fw-bold text-dark">@order.PublicCode</span>
+                                @if (order.UserId == null)
+                                {
+                                    <span class="badge bg-light text-secondary border ms-1">Khách</span>
+                                }
+                            </td>
+                            <td class="fw-semibold">@order.CustomerName</td>
+                            <td class="small">@order.PhoneNumber</td>
+                            <td class="small text-truncate" style="max-width: 200px;">@order.ShippingAddress</td>
+                            <td class="small">@order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="fw-bold" style="color: #B4390F;">@order.TotalAmount.ToVnd()</td>
+                            <td>
+                                <span class="badge @(order.Status == "Completed" ? "bg-success" : order.Status == "Cancelled" ? "bg-danger" : "bg-warning text-dark")">
+                                    @OrderStatus.Label(order.Status)
+                                </span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                    Chi tiết & Đổi trạng thái
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

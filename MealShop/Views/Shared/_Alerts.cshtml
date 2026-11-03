@@ -1,0 +1,51 @@
+@{
+    var flashMessage = TempData["FLASH_MESSAGE"] as string;
+    var flashType = (TempData["FLASH_TYPE"] as string)?.ToLowerInvariant() ?? "success";
+    var role = (flashType == "warning" || flashType == "danger") ? "alert" : "status";
+}
+
+<div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 1090;">
+    <!-- Toast tu server (TempData khi chuyen trang) -->
+    @if (!string.IsNullOrEmpty(flashMessage))
+    {
+        var borderStyle = flashType switch
+        {
+            "warning" => "border-left: 5px solid #E28743;",
+            "danger" => "border-left: 5px solid #DC3545;",
+            _ => "border-left: 5px solid #2F7D4F;"
+        };
+        var icon = flashType switch
+        {
+            "warning" => "⚠",
+            "danger" => "✕",
+            _ => "✓"
+        };
+        var iconColor = flashType switch
+        {
+            "warning" => "#E28743",
+            "danger" => "#DC3545",
+            _ => "#2F7D4F"
+        };
+
+        <div id="flashToast" class="toast show align-items-center bg-white shadow-lg border-0 rounded-4 mb-2" role="@role" aria-live="assertive" aria-atomic="true" data-bs-delay="3000" data-bs-autohide="true" style="@borderStyle">
+            <div class="d-flex p-3">
+                <span class="me-3 fs-5 fw-bold" style="color: @iconColor;">@icon</span>
+                <div class="toast-body p-0 text-dark fw-medium my-auto">
+                    @flashMessage
+                </div>
+                <button type="button" class="btn-close ms-auto my-auto" data-bs-dismiss="toast" aria-label="Đóng thông báo"></button>
+            </div>
+        </div>
+    }
+
+    <!-- Toast dong tu JavaScript khi tuong tac khong reload trang -->
+    <div id="dynamicToast" class="toast align-items-center bg-white shadow-lg border-0 rounded-4" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="3000" data-bs-autohide="true" style="border-left: 5px solid #2F7D4F;">
+        <div class="d-flex p-3">
+            <span id="toastIcon" class="me-3 fs-5 fw-bold" style="color: #2F7D4F;">✓</span>
+            <div id="toastMessage" class="toast-body p-0 text-dark fw-medium my-auto">
+                <!-- Noi dung thong bao se duoc dien boi JS -->
+            </div>
+            <button type="button" class="btn-close ms-auto my-auto" data-bs-dismiss="toast" aria-label="Đóng thông báo"></button>
+        </div>
+    </div>
+</div>

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using MealShop.Extensions;
 using MealShop.Models;
 using MealShop.ViewModels;
 
@@ -61,6 +63,7 @@ public class AccountController : Controller
             await _userManager.AddToRoleAsync(user, "Customer");
             await _signInManager.SignInAsync(user, isPersistent: false);
             _logger.LogInformation("Nguoi dung {Email} da dang ky tai khoan thanh cong.", model.Email);
+            this.FlashSuccess("Đăng ký tài khoản thành công!");
 
             return RedirectToLocal(returnUrl);
         }
@@ -88,6 +91,8 @@ public class AccountController : Controller
 
     [HttpPost]
     [AllowAnonymous]
+    [ValidateAntiForgeryToken]
+    [EnableRateLimiting("login-limit")]
     public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
@@ -106,26 +111,31 @@ public class AccountController : Controller
         if (result.Succeeded)
         {
             _logger.LogInformation("Nguoi dung {Email} dang nhap thanh cong.", model.Email);
+            this.FlashSuccess("Đăng nhập thành công!");
             return RedirectToLocal(returnUrl);
         }
 
         if (result.IsLockedOut)
         {
             _logger.LogWarning("Tai khoan {Email} bi tam khoa do dang nhap sai nhieu lan.", model.Email);
-            ModelState.AddModelError(string.Empty, "Tai khoan bi tam khoa do nhap sai qua 5 lan. Vui long thu lai sau 10 phut.");
+            this.FlashDanger("Tài khoản bị tạm khóa do nhập sai quá 5 lần. Vui lòng thử lại sau 10 phút.");
+            ModelState.AddModelError(string.Empty, "Tài khoản bị tạm khóa do nhập sai quá 5 lần. Vui lòng thử lại sau 10 phút.");
             return View(model);
         }
 
-        ModelState.AddModelError(string.Empty, "Email hoac mat khau khong chinh xac.");
+        _logger.LogWarning("Dang nhap that bai cho email: {Email}", model.Email);
+        ModelState.AddModelError(string.Empty, "Email hoặc mật khẩu không chính xác.");
         return View(model);
     }
 
     [HttpPost]
     [Authorize]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
         await _signInManager.SignOutAsync();
         _logger.LogInformation("Nguoi dung da dang xuat.");
+        this.FlashSuccess("Bạn đã đăng xuất thành công.");
         return RedirectToAction("Index", "Foods");
     }
 

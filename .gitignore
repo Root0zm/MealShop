@@ -485,3 +485,13 @@ $RECYCLE.BIN/
 
 # Seed data CSV
 MealShop/Data/Seed/*.csv
+
+# SQL Server database backups
+*.bak
+
+
+# Local rollback backups (may contain API keys)
+.local-backups/
+# DocProject
+docs/ 
+Mau/
